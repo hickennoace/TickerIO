@@ -13,7 +13,7 @@ export function AuroraBackground({ bias = 0 }: { bias?: number }) {
   const tint2 = "124,92,255";
 
   return (
-    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       <motion.div
         className="absolute h-[60vmax] w-[60vmax] rounded-full"
         style={{
