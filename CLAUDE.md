@@ -58,6 +58,27 @@ Chosen specifically to be **first-class on Vercel's serverless/edge platform** a
 
 > **Provider note:** When integrating the LLM, consult the latest model IDs/pricing before hardcoding anything. Default to a current, capable model (e.g., Claude Opus/Sonnet class) and route through the **Vercel AI SDK** so providers are swappable.
 
+### 2.1 Trusted Data Sources (reliability is the product)
+
+TickerIO's credibility depends entirely on where its numbers come from. We aggregate **multiple leading financial sources**, normalize them through Zod at the boundary, and always show provenance + an `asOf` timestamp. Sources are layered as **primary → fallback** so a single outage never blanks the dashboard.
+
+| Domain | Primary source | Fallback / cross-check | Notes |
+|---|---|---|---|
+| **Equities — price, OHLCV, quote** | **Yahoo Finance** (`query1.finance.yahoo.com/v8/finance/chart`) | Stooq CSV | Free, no key, broad coverage (stocks/ETFs/indices). Real session data, currency, exchange tz. |
+| **Crypto — price, OHLCV** | **Yahoo Finance** (`BTC-USD`, `ETH-USD`, …) | **CoinGecko** (the "crypto jungle" of coins) | CoinGecko covers the long tail of coins Yahoo lacks; used for discovery + market cap/dominance. |
+| **Crypto — sentiment** | **Alternative.me Crypto Fear & Greed Index** (`api.alternative.me/fng`) | Internal composite (§5.1) | Industry-standard crypto F&G, free, daily. |
+| **Forex — rates, OHLCV** | **Yahoo Finance** (`EURUSD=X`, …) | exchangerate.host | Major + minor pairs. |
+| **Macro / economic calendar** | **Forex Factory** weekly calendar (via `nfs.faireconomy.media` JSON feed) | TradingEconomics (if keyed) | High-impact events, actual/forecast/previous — drives the "event risk" rail. |
+| **News & headlines** | **Yahoo Finance** news (RSS `finance.yahoo.com/rss/headline?s=SYM` + quoteSummary) | GDELT / provider RSS | Per-symbol headlines feed both the NewsFeed and the AI summary. |
+| **Charting** | **TradingView** — free **Advanced Real-Time Chart** embed widget now; upgrade to the licensed **Advanced Charting Library** when access is granted | — | The free embed already gives intervals, drawing tools, and indicators (Phase 2). |
+
+**Source rules:**
+- **Never trust a single source silently.** Where two sources disagree materially, prefer the primary and flag the discrepancy.
+- **Attribution is mandatory.** Each widget shows which source(s) and `asOf` time produced its numbers.
+- **Server-side only.** All third-party calls happen in Route Handlers (avoids CORS, hides any keys, lets us cache).
+- **Cache + rate-limit respect.** Quotes ~15–30s, candles ~1–5m, news ~5–10m, calendar ~1h, crypto F&G ~1h.
+- **Graceful degradation.** On a provider error, serve last-good cached data labeled "delayed/stale" rather than an empty widget.
+
 ---
 
 ## 3. Architecture & File Structure
@@ -223,61 +244,76 @@ biasScore = wTech × technicalMomentum + wSent × newsSentiment
 
 ## 6. Step-by-Step ROADMAP
 
-Build in phases. **Do not start a phase until the previous one is green.** Each phase ends with a working, deployable state on a Vercel preview.
+Build in phases. **Do not start a phase until the previous one is green.** Each phase ends with a working, deployable state on a Vercel preview. Checkboxes are ticked as they ship.
 
-### Phase 0 — Foundation & Setup
-- [ ] `create-next-app` (App Router, TypeScript strict, Tailwind, ESLint).
-- [ ] Install: shadcn/ui, Framer Motion, TanStack Query, Zustand, Zod, date-fns-tz, Vercel AI SDK.
-- [ ] Set up theme (dark-first, premium palette), fonts, global layout.
-- [ ] Configure env var schema and `.env.example` (market data key, news key, AI key, Redis).
-- [ ] Link repo to **Vercel**; confirm preview deploys on push.
-- ✅ *Done when:* a themed empty dashboard deploys to a Vercel preview URL.
+### Phase 0 — Foundation & Setup ✅ DONE
+- [x] `create-next-app` (App Router, TypeScript strict, Tailwind v4, ESLint).
+- [x] Install Framer Motion (`motion`), lucide-react; later TanStack Query, Zod, date-fns-tz.
+- [x] Dark-first premium design system, fonts, global layout, glass panels, shimmer skeletons.
+- [x] `.env.example` with the env var schema.
+- [x] Repo linked to GitHub; ready for Vercel import.
+- [x] Landing page + `/[ticker]` dashboard shell with all widget placeholders (demo data, badged).
+- ✅ *Done.*
 
-### Phase 1 — Data Layer & Provider Integration
-- [ ] Pick & integrate a market-data provider; build `lib/providers/marketData.ts`.
-- [ ] Define Zod schemas for quote & candle payloads.
-- [ ] Implement `/api/quote` and `/api/candles` (typed, cached, `asOf` stamped).
-- [ ] Wire React Query + skeletons for `PriceHeader`.
-- ✅ *Done when:* entering a ticker shows a live, labeled price with skeleton→data transition.
+### Phase 1 — Real Data Layer (Yahoo Finance + multi-source) 🎯
+- [ ] `lib/providers/yahoo.ts` — chart/quote client (`v8/finance/chart`, `quoteSummary`), Zod-validated.
+- [ ] `lib/markets/symbol.ts` — symbol resolver: `BTC`→`BTC-USD`, `EURUSD`→`EURUSD=X`, equity passthrough; asset-class + currency + exchange-tz detection.
+- [ ] `lib/providers/coingecko.ts` — crypto long-tail + market cap/dominance (fallback/discovery).
+- [ ] Zod schemas in `lib/schemas/` for every external payload.
+- [ ] `lib/cache.ts` — in-memory + (optional) Upstash Redis TTL cache with `asOf` stamping.
+- [ ] `/api/quote` and `/api/candles` Route Handlers (typed, cached, source-attributed).
+- [ ] React Query provider + hooks; wire `PriceHeader` to live data with skeleton→data.
+- ✅ *Done when:* a real ticker shows real price/sparkline with source + `asOf`, skeletons on load.
 
-### Phase 2 — TradingView Advanced Charting Library
-- [ ] Obtain the official **Advanced Charting Library** from TradingView (license/access) and place under `public/charting_library/` (gitignored).
-- [ ] Build `TradingViewChart.tsx` widget wrapper.
-- [ ] Implement the **datafeed adapter** (`datafeed.ts`) backed by `/api/tv/*` (config, symbols, history) using our candle data.
-- [ ] Enable interval switching, drawing tools (trendlines), and indicators.
-- ✅ *Done when:* the chart behaves like TradingView — change intervals, draw, no page reload.
+### Phase 2 — Charting (TradingView) 📈
+- [ ] `TradingViewChart.tsx` — embed the **free Advanced Real-Time Chart widget** (intervals, drawing tools, indicators) mapped to the resolved symbol/exchange.
+- [ ] Interval state synced with the rest of the dashboard.
+- [ ] Theming to match the dark design system; graceful loading state.
+- [ ] *(Later)* swap to the licensed **Advanced Charting Library** + `/api/tv/*` UDF datafeed when access is granted.
+- ✅ *Done when:* a real, interactive TradingView chart renders for the symbol, no page reload.
 
-### Phase 3 — Financial Math Engine
-- [ ] Implement `sessions.ts` (UTC + equity market hours + holiday/DST handling).
-- [ ] Implement `periods.ts` anchored period-open resolution (§4).
-- [ ] Implement `change.ts` with explicit bases.
-- [ ] Unit-test against the §4.4 acceptance cases.
-- [ ] Build `/api/timeframes` + `TimeframePanel` widget.
-- ✅ *Done when:* Day/Week/Month/YTD changes are anchored correctly for both crypto and equities, with visible anchor timestamps.
+### Phase 3 — Financial Math Engine (anchored timeframes) 🧮
+- [ ] `lib/finance/sessions.ts` — UTC + equity market hours, weekend/holiday, DST (date-fns-tz).
+- [ ] `lib/finance/periods.ts` — anchored period-open resolution for Day/Week/Month/Quarter/YTD/Year (§4), per asset class.
+- [ ] `lib/finance/change.ts` — explicit-base % + absolute change calculators.
+- [ ] Unit tests against §4.4 acceptance cases (Vitest).
+- [ ] `/api/timeframes` + wire `TimeframePanel` to real anchored numbers with visible anchors.
+- ✅ *Done when:* Day/Week/Month/YTD are correctly anchored (not rolling) for crypto AND equities.
 
-### Phase 4 — AI & Sentiment Engine
-- [ ] `/api/news` (cached fetch) + `NewsFeed`.
-- [ ] `/api/ai-summary` streaming via Vercel AI SDK + `AiSummaryCard`.
-- [ ] `fear-greed.ts` + `/api/sentiment` + animated `FearGreedGauge`.
-- [ ] `trend-bias.ts` + `/api/trend-bias` + `TrendBiasIndicator`.
-- [ ] Add Redis/Runtime caching + Vercel **Cron** for background news prefetch (`vercel.json`).
-- ✅ *Done when:* the sentiment column populates live, AI summary streams, gauge animates, bias shows breakdown.
+### Phase 4 — Sentiment, News & AI Engine 🧠
+- [ ] `/api/news` — Yahoo Finance per-symbol headlines (RSS + quoteSummary), cached; wire `NewsFeed`.
+- [ ] `lib/finance/fear-greed.ts` + `/api/sentiment` — Alternative.me crypto F&G + internal composite (momentum/vol/strength); animated gauge.
+- [ ] `lib/finance/trend-bias.ts` + `/api/trend-bias` — technical momentum × news sentiment, with breakdown.
+- [ ] `/api/ai-summary` — Vercel AI SDK streaming bottom-line + structured sentiment; **heuristic fallback when no API key** (clearly labeled). Standing "not financial advice" disclaimer.
+- [ ] `/api/calendar` — **Forex Factory** weekly economic calendar (faireconomy JSON); high-impact event-risk rail.
+- ✅ *Done when:* sentiment column, news, AI summary, and the macro calendar all populate from real sources.
 
-### Phase 5 — Premium UI/UX Polish
-- [ ] Per-widget skeleton states everywhere; no layout shift on load.
-- [ ] Framer Motion: gauge sweep, number count-ups, widget enter/exit, layout transitions.
-- [ ] Responsive grid (desktop-first, graceful mobile).
-- [ ] Micro-interactions, loading shimmer, smooth interval/symbol transitions (no full refresh).
-- [ ] Accessibility pass (keyboard, focus, contrast, reduced-motion).
-- ✅ *Done when:* the app feels high-end and nothing janks.
+### Phase 5 — Premium UI/UX & Unique Animations ✨
+- [ ] Animated gradient/mesh hero background; aurora glow that reacts to bias (green/red tint).
+- [ ] Number **count-up / live-tick** animation on price + percentages (motion springs).
+- [ ] **Sparkline draw-on** + chart reveal; staggered widget entrance (layout + presence).
+- [ ] Animated Fear & Greed needle, trend-bias bar fills, and a live "pulse" market-status dot.
+- [ ] Smooth symbol/interval transitions (no full refresh), shared-layout header.
+- [ ] Per-widget skeletons everywhere; zero layout shift; full `prefers-reduced-motion` support.
+- [ ] Responsive: desktop-first trading-terminal grid, graceful tablet/mobile.
+- [ ] Accessibility pass (keyboard, focus rings, contrast, ARIA on gauges/charts).
+- ✅ *Done when:* the app feels high-end, animations are distinctive, and nothing janks.
 
-### Phase 6 — Hardening & Production
-- [ ] Error/empty/stale states for every widget; graceful provider-fallback.
-- [ ] Rate-limit handling + cache TTL tuning.
-- [ ] Function/edge runtime tuning in `vercel.json`; cold-start audit.
-- [ ] Performance: Core Web Vitals, bundle size, image/font optimization.
-- [ ] Final disclaimers, legal, env review.
-- ✅ *Done when:* production deploy is fast, resilient, and financially correct under edge cases.
+### Phase 6 — Reliability, Caching & Production Hardening 🛡️
+- [ ] Multi-source fallback wiring (primary → fallback) with discrepancy flagging.
+- [ ] Error/empty/stale states for every widget; last-good cache served on provider failure.
+- [ ] Rate-limit handling + per-source TTL tuning; optional Upstash Redis via Marketplace.
+- [ ] Route Handler runtime/region config in `vercel.json`; Cron for calendar/news prefetch.
+- [ ] Performance: Core Web Vitals, bundle trim, font/image optimization, streaming where useful.
+- [ ] Final disclaimers, source attributions, legal, env review.
+- ✅ *Done when:* production is fast, resilient under provider outages, and financially correct at the edges.
+
+### Phase 7 — Pro Features (stretch) 🚀
+- [ ] Multi-symbol watchlist + compare; persistent via localStorage/Zustand.
+- [ ] Symbol search autocomplete (Yahoo/CoinGecko search endpoints).
+- [ ] Keyboard command palette (⌘K) for instant symbol jumps.
+- [ ] Shareable deep links + OG image generation per ticker.
+- ✅ *Done when:* power users can move through markets without touching the mouse.
 
 ---
 
