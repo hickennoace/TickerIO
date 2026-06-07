@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://ticker-io.vercel.app"),
   title: "TickerIO — The trader's all-in-one dashboard",
   description:
     "Type a ticker. Get a complete, real-time read on any asset — TradingView-grade charts, anchored timeframes, AI sentiment, and trend bias. No refresh.",
