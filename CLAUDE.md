@@ -308,12 +308,20 @@ Build in phases. **Do not start a phase until the previous one is green.** Each 
 - [x] Source attributions + "not financial advice" disclaimers throughout.
 - 🔶 *Status:* resilient and correct; platform-level tuning (Cron/Redis/CWV audit) remains optional.
 
-### Phase 7 — Pro Features (stretch) 🚀
-- [ ] Multi-symbol watchlist + compare; persistent via localStorage/Zustand.
-- [ ] Symbol search autocomplete (Yahoo/CoinGecko search endpoints).
-- [ ] Keyboard command palette (⌘K) for instant symbol jumps.
-- [ ] Shareable deep links + OG image generation per ticker.
-- ✅ *Done when:* power users can move through markets without touching the mouse.
+### Phase 7 — Pro Features 🚀 (mostly done)
+- [x] Watchlist persistent via Zustand + localStorage (star toggle + landing strip + palette).
+- [x] Symbol search autocomplete (Yahoo search) — keyboard-navigable dropdown.
+- [x] Keyboard command palette (⌘/Ctrl-K) for instant symbol jumps + watchlist.
+- [x] Shareable deep links (every `/[ticker]` is a URL) + per-ticker OG image (next/og).
+- [ ] Multi-symbol **compare** view. *(Remaining stretch item.)*
+- ✅ *Status:* power users can move through markets via ⌘K without the mouse.
+
+> **SEO/finish also shipped:** robots.txt, sitemap.xml, branded favicon (`app/icon.tsx`),
+> custom 404 + error boundary, dashboard loading skeleton, `metadataBase`.
+>
+> **Deploy note:** Vercel's Production Branch is still `master` (stale from import), so `main`
+> pushes currently create Previews — production is updated via `vercel deploy` + `vercel promote`.
+> Fix once in dashboard: Settings → Git → Production Branch → `main`.
 
 ---
 
