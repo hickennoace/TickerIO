@@ -63,3 +63,12 @@ export const fetchAiSummary = (symbol: string) =>
 
 export const fetchCalendar = () =>
   get<{ events: CalendarEvent[]; source: string; asOf: string }>(`/api/calendar`);
+
+export interface SearchHit {
+  symbol: string;
+  name: string;
+  type: string;
+  exchange: string;
+}
+export const fetchSearch = (q: string) =>
+  get<{ hits: SearchHit[] }>(`/api/search?q=${encodeURIComponent(q)}`);
