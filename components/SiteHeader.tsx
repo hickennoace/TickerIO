@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Activity } from "lucide-react";
 import { TickerSearch } from "./TickerSearch";
+import { CommandHint } from "./CommandHint";
 
 export function SiteHeader({ showSearch = true }: { showSearch?: boolean }) {
   return (
@@ -26,11 +27,13 @@ export function SiteHeader({ showSearch = true }: { showSearch?: boolean }) {
           </div>
         )}
 
-        <nav className="ml-auto hidden items-center gap-5 text-sm text-[var(--fg-muted)] md:flex">
-          <span className="cursor-default">Markets</span>
-          <span className="cursor-default">Screener</span>
-          <span className="cursor-default">Watchlist</span>
-        </nav>
+        <div className="ml-auto flex items-center gap-3">
+          <nav className="hidden items-center gap-5 text-sm text-[var(--fg-muted)] md:flex">
+            <span className="cursor-default">Markets</span>
+            <span className="cursor-default">Screener</span>
+          </nav>
+          <CommandHint />
+        </div>
       </div>
     </header>
   );

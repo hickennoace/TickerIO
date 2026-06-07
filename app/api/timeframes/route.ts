@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { dailyCandles, quote } from "@/lib/market";
 import { computeTimeframes } from "@/lib/finance/periods";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const symbol = req.nextUrl.searchParams.get("symbol");

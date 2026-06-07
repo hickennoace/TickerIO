@@ -3,7 +3,7 @@ import { cached } from "@/lib/cache";
 import { resolve } from "@/lib/market";
 import { getNews } from "@/lib/providers/news";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const symbol = req.nextUrl.searchParams.get("symbol");

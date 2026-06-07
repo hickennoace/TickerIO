@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cached } from "@/lib/cache";
 import { searchSymbols } from "@/lib/providers/search";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q")?.trim() ?? "";

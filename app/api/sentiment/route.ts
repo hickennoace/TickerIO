@@ -4,7 +4,7 @@ import { cached } from "@/lib/cache";
 import { computeFearGreed, fgLabel } from "@/lib/finance/fear-greed";
 import { getCryptoFng } from "@/lib/providers/altfng";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const symbol = req.nextUrl.searchParams.get("symbol");

@@ -7,7 +7,7 @@ import { technicalScore, computeTrendBias } from "@/lib/finance/trend-bias";
 import { getNews } from "@/lib/providers/news";
 import { resolve } from "@/lib/market";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 type Lean = "Bearish" | "Neutral" | "Bullish";
 

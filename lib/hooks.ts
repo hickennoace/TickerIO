@@ -1,16 +1,38 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import {
   fetchAiSummary,
   fetchCalendar,
   fetchCandles,
   fetchNews,
   fetchQuote,
+  fetchSearch,
   fetchSentiment,
   fetchTimeframes,
   fetchTrendBias,
 } from "@/lib/api";
+
+/** Debounce any fast-changing value. */
+export function useDebounced<T>(value: T, ms = 200): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), ms);
+    return () => clearTimeout(id);
+  }, [value, ms]);
+  return debounced;
+}
+
+export function useSearch(query: string) {
+  const q = useDebounced(query.trim(), 220);
+  return useQuery({
+    queryKey: ["search", q],
+    queryFn: () => fetchSearch(q),
+    enabled: q.length >= 1,
+    staleTime: 60_000,
+  });
+}
 
 export function useQuote(symbol: string) {
   return useQuery({

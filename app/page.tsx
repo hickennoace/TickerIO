@@ -1,5 +1,6 @@
 import { Activity, BarChart3, Brain, Clock } from "lucide-react";
 import { TickerSearch } from "@/components/TickerSearch";
+import { MarketOverview } from "@/components/MarketOverview";
 
 const FEATURES = [
   {
@@ -56,6 +57,11 @@ export default function Home() {
           <div className="mt-10 w-full max-w-xl">
             <TickerSearch size="lg" autoFocus />
           </div>
+        </div>
+
+        {/* Live market overview */}
+        <div className="mt-20 w-full">
+          <MarketOverview />
         </div>
 
         {/* Features */}

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cached } from "@/lib/cache";
 import { getEconomicCalendar } from "@/lib/providers/calendar";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {

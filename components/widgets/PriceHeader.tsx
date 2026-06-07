@@ -6,6 +6,7 @@ import { formatPrice, formatPercent, formatSignedPrice, direction } from "@/lib/
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { LivePulse } from "@/components/ui/LivePulse";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { WatchStar } from "@/components/WatchStar";
 import { Sparkline } from "./Sparkline";
 
 function relTime(iso: string): string {
@@ -98,12 +99,13 @@ export function PriceHeader({
           </p>
         </div>
 
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-4">
           {spark.length > 1 ? (
             <Sparkline data={spark} up={up} width={260} height={64} />
           ) : (
             <Skeleton className="h-16 w-64" />
           )}
+          <WatchStar symbol={quote.symbol} />
         </div>
       </div>
     </section>

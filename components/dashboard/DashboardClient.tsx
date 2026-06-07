@@ -20,6 +20,7 @@ import { TrendBiasIndicator } from "@/components/widgets/TrendBiasIndicator";
 import { AiSummaryCard } from "@/components/widgets/AiSummaryCard";
 import { NewsFeed } from "@/components/widgets/NewsFeed";
 import { EconomicCalendar } from "@/components/widgets/EconomicCalendar";
+import { KeyStats } from "@/components/widgets/KeyStats";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 export function DashboardClient({ symbol }: { symbol: string }) {
@@ -72,6 +73,9 @@ export function DashboardClient({ symbol }: { symbol: string }) {
           <div className="flex flex-col gap-5">
             <Reveal delay={0.08}>
               <TimeframePanel rows={tfQ.data?.rows} currency={tfQ.data?.currency} loading={tfQ.isLoading} />
+            </Reveal>
+            <Reveal delay={0.1}>
+              <KeyStats quote={quote} loading={quoteQ.isLoading} />
             </Reveal>
             <Reveal delay={0.13}>
               <FearGreedGauge score={sentQ.data?.score} source={sentQ.data?.source} loading={sentQ.isLoading} />
