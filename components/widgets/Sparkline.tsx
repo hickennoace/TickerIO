@@ -1,3 +1,7 @@
+"use client";
+
+import { motion } from "motion/react";
+
 export function Sparkline({
   data,
   up,
@@ -25,7 +29,7 @@ export function Sparkline({
   const line = points.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
   const area = `${line} L${width},${height} L0,${height} Z`;
   const color = up ? "var(--up)" : "var(--down)";
-  const id = `spark-${up ? "u" : "d"}`;
+  const id = `spark-${up ? "u" : "d"}-${width}`;
 
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
@@ -35,8 +39,24 @@ export function Sparkline({
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <path d={area} fill={`url(#${id})`} />
-      <path d={line} fill="none" stroke={color} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+      <motion.path
+        d={area}
+        fill={`url(#${id})`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.3 }}
+      />
+      <motion.path
+        d={line}
+        fill="none"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: 1 }}
+        transition={{ duration: 1, ease: "easeInOut" }}
+      />
     </svg>
   );
 }

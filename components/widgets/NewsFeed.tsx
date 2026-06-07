@@ -1,39 +1,59 @@
-import type { NewsItem } from "@/lib/demo";
+"use client";
+
+import { ExternalLink } from "lucide-react";
+import type { NewsItem } from "@/lib/types";
 import { WidgetCard } from "./WidgetCard";
-import { DemoBadge } from "@/components/ui/DemoBadge";
+import { Skeleton } from "@/components/ui/Skeleton";
 
-function dot(sentiment: NewsItem["sentiment"]): string {
-  return sentiment === "up" ? "var(--up)" : sentiment === "down" ? "var(--down)" : "var(--fg-dim)";
+function ago(iso: string): string {
+  const m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
 }
 
-function ago(minutes: number): string {
-  if (minutes < 60) return `${minutes}m ago`;
-  const h = Math.floor(minutes / 60);
-  return `${h}h ago`;
-}
-
-export function NewsFeed({ news }: { news: NewsItem[] }) {
+export function NewsFeed({ items, source, loading }: { items?: NewsItem[]; source?: string; loading: boolean }) {
   return (
-    <WidgetCard title="Latest News" action={<DemoBadge />}>
-      <ul className="space-y-3">
-        {news.map((item) => (
-          <li
-            key={item.id}
-            className="group flex cursor-default gap-3 rounded-lg p-1 transition-colors hover:bg-[var(--panel-2)]"
-          >
-            <span
-              className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
-              style={{ background: dot(item.sentiment) }}
-            />
-            <div className="min-w-0">
-              <p className="text-sm leading-snug text-[var(--fg)]">{item.headline}</p>
-              <p className="mt-0.5 text-xs" style={{ color: "var(--fg-dim)" }}>
-                {item.source} · {ago(item.minutesAgo)}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
+    <WidgetCard
+      title="Latest News"
+      action={source ? <span className="text-[11px]" style={{ color: "var(--fg-dim)" }}>{source}</span> : null}
+    >
+      {loading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-10 w-full" />
+          ))}
+        </div>
+      ) : !items || items.length === 0 ? (
+        <p className="text-sm" style={{ color: "var(--fg-dim)" }}>
+          No recent headlines for this symbol.
+        </p>
+      ) : (
+        <ul className="space-y-1">
+          {items.map((item) => (
+            <li key={item.id}>
+              <a
+                href={item.url || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex gap-3 rounded-lg p-2 transition-colors hover:bg-[var(--panel-2)]"
+              >
+                <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full" style={{ background: "var(--accent)" }} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm leading-snug text-[var(--fg)] group-hover:text-white">
+                    {item.headline}
+                  </p>
+                  <p className="mt-0.5 flex items-center gap-1.5 text-xs" style={{ color: "var(--fg-dim)" }}>
+                    {item.source} · {ago(item.publishedAt)}
+                    <ExternalLink size={11} className="opacity-0 transition-opacity group-hover:opacity-100" />
+                  </p>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
     </WidgetCard>
   );
 }

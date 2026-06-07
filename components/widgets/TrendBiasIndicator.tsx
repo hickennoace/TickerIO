@@ -1,13 +1,8 @@
-import { WidgetCard } from "./WidgetCard";
-import { DemoBadge } from "@/components/ui/DemoBadge";
+"use client";
 
-function biasLabel(score: number): string {
-  if (score <= -60) return "Strong Bearish";
-  if (score < -20) return "Bearish";
-  if (score <= 20) return "Neutral";
-  if (score < 60) return "Bullish";
-  return "Strong Bullish";
-}
+import { motion } from "motion/react";
+import { WidgetCard } from "./WidgetCard";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 function biasColor(score: number): string {
   if (score < -20) return "var(--down)";
@@ -16,7 +11,6 @@ function biasColor(score: number): string {
 }
 
 function Bar({ label, value }: { label: string; value: number }) {
-  // value: -100..100 → bar fills from center.
   const pct = Math.min(100, Math.abs(value));
   const color = value < 0 ? "var(--down)" : "var(--up)";
   return (
@@ -30,47 +24,60 @@ function Bar({ label, value }: { label: string; value: number }) {
       </div>
       <div className="relative h-2 rounded-full" style={{ background: "var(--panel-2)" }}>
         <div className="absolute left-1/2 top-0 h-full w-px" style={{ background: "var(--border-strong)" }} />
-        <div
+        <motion.div
           className="absolute top-0 h-full rounded-full"
-          style={{
-            background: color,
-            width: `${pct / 2}%`,
-            left: value < 0 ? `${50 - pct / 2}%` : "50%",
-          }}
+          style={{ background: color, left: value < 0 ? `${50 - pct / 2}%` : "50%" }}
+          initial={{ width: 0 }}
+          animate={{ width: `${pct / 2}%` }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         />
       </div>
     </div>
   );
 }
 
-/** Algorithmic trend bias: technical momentum + news sentiment (CLAUDE.md §5.3). */
+/** Algorithmic trend bias: technical momentum + sentiment (CLAUDE.md §5.3). */
 export function TrendBiasIndicator({
   bias,
-  tech,
-  sent,
+  technical,
+  sentiment,
+  label,
+  loading,
 }: {
-  bias: number;
-  tech: number;
-  sent: number;
+  bias?: number;
+  technical?: number;
+  sentiment?: number;
+  label?: string;
+  loading: boolean;
 }) {
   return (
-    <WidgetCard title="Trend Bias" action={<DemoBadge />}>
-      <div className="mb-4 flex items-baseline gap-2">
-        <span className="text-2xl font-bold" style={{ color: biasColor(bias) }}>
-          {biasLabel(bias)}
-        </span>
-        <span className="font-mono-num text-sm" style={{ color: "var(--fg-dim)" }}>
-          {bias > 0 ? "+" : ""}
-          {bias}
-        </span>
-      </div>
-      <div className="space-y-3">
-        <Bar label="Technical momentum" value={tech} />
-        <Bar label="News sentiment" value={sent} />
-      </div>
-      <p className="mt-3 text-[11px] leading-relaxed" style={{ color: "var(--fg-dim)" }}>
-        Weighted 60% technical · 40% sentiment.
-      </p>
+    <WidgetCard title="Trend Bias">
+      {loading || bias == null ? (
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-2 w-full" />
+          <Skeleton className="h-2 w-full" />
+        </div>
+      ) : (
+        <>
+          <div className="mb-4 flex items-baseline gap-2">
+            <span className="text-2xl font-bold" style={{ color: biasColor(bias) }}>
+              {label}
+            </span>
+            <span className="font-mono-num text-sm" style={{ color: "var(--fg-dim)" }}>
+              {bias > 0 ? "+" : ""}
+              {bias}
+            </span>
+          </div>
+          <div className="space-y-3">
+            <Bar label="Technical momentum" value={technical ?? 0} />
+            <Bar label="Market sentiment" value={sentiment ?? 0} />
+          </div>
+          <p className="mt-3 text-[11px] leading-relaxed" style={{ color: "var(--fg-dim)" }}>
+            Weighted 60% technical · 40% sentiment.
+          </p>
+        </>
+      )}
     </WidgetCard>
   );
 }

@@ -76,7 +76,8 @@ export default function Home() {
       </div>
 
       <footer className="border-t border-[var(--border)] py-6 text-center text-xs text-[var(--fg-dim)]">
-        TickerIO · Analysis only, not financial advice. Demo data until live providers are connected.
+        Data: Yahoo Finance · Alternative.me · Forex Factory · TradingView. Analysis only, not
+        financial advice.
       </footer>
     </main>
   );
