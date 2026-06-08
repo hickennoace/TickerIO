@@ -338,9 +338,9 @@ Build in phases. **Do not start a phase until the previous one is green.** Each 
 - [x] **Live price streaming (SSE)** — `/api/stream` emits ticks (~5s, bounded 45s, auto-reconnect); `usePriceStream` patches the React Query quote cache in place. Perf-safe on Vercel Fluid Compute.
 - [x] **Dedicated `/watchlist` page** — live quote cards with intraday sparklines, remove, empty-state quick-add.
 - [x] **Price alerts** via browser notifications — `useAlerts` store + `AlertButton` (above/below threshold) + global `AlertWatcher` (one-shot, fires while open).
-- [ ] Drag-to-reorder dashboard widgets; persisted layout.
-- [ ] Optional light "parchment" theme variant.
-- 🔶 *Status:* prices stream live; users get a watchlist + personal alerts. Layout DnD + light theme remain.
+- [x] **Drag-to-reorder** right-rail widgets (@dnd-kit), persisted via `useWidgetOrder`.
+- [x] **Light theme** ("Daylight Terminal") — `[data-theme="light"]` palette, no-FOUC inline script, header toggle.
+- ✅ *Done:* prices stream live; watchlist + alerts + reorderable, theme-able dashboard.
 
 ---
 

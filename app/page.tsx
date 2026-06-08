@@ -3,6 +3,7 @@ import { TickerSearch } from "@/components/TickerSearch";
 import { MarketOverview } from "@/components/MarketOverview";
 import { TickerTape } from "@/components/TickerTape";
 import { LivePulse } from "@/components/ui/LivePulse";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const FEATURES = [
   {
@@ -26,6 +27,10 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col">
       <TickerTape />
+
+      <div className="mx-auto flex w-full max-w-[1120px] justify-end px-4 pt-4 sm:px-6">
+        <ThemeToggle />
+      </div>
 
       <div className="mx-auto flex w-full max-w-[1120px] flex-1 flex-col items-center px-4 sm:px-6">
         {/* Hero */}

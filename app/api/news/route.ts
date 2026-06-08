@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
 
     // Plain-language digest of the actual article headlines (cached by hash so
     // identical news never re-triggers the LLM).
-    const headlines = articles.slice(0, 6).map((a) => a.headline);
+    const headlines = articles.slice(0, 5).map((a) => a.headline);
     const { value: digest } = await cached(
       `digest:${r.symbol}:${hash(headlines.join("|"))}`,
       1800,

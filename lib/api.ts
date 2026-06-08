@@ -48,7 +48,6 @@ export const fetchTrendBias = (symbol: string) =>
 
 export interface NewsDigest {
   text: string;
-  lean: "positive" | "negative" | "mixed";
   generatedBy: string;
 }
 export const fetchNews = (symbol: string) =>

@@ -50,6 +50,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${display.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(localStorage.getItem('tickerio-theme')==='light'){document.documentElement.dataset.theme='light'}}catch(e){}",
+          }}
+        />
         <SiteBackground />
         <Providers>
           {children}

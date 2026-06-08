@@ -73,7 +73,7 @@ export function TimeframePanel({
                 </div>
 
                 {/* Diverging magnitude bar */}
-                <div className="relative h-2.5 rounded-full" style={{ background: "rgba(255,255,255,0.04)" }}>
+                <div className="relative h-2.5 rounded-full" style={{ background: "var(--bar-track)" }}>
                   <div
                     className="absolute left-1/2 top-1/2 h-3.5 w-px -translate-y-1/2"
                     style={{ background: "var(--border-strong)" }}

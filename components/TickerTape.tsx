@@ -42,7 +42,7 @@ function Item({ symbol }: { symbol: string }) {
 /** Continuously scrolling live quote tape. Pauses on hover. */
 export function TickerTape() {
   return (
-    <div className="marquee border-y border-[var(--border)] bg-[rgba(6,9,16,0.92)]">
+    <div className="marquee border-y border-[var(--border)] bg-[var(--tape-bg)]">
       <div className="marquee-track">
         {[0, 1].map((dup) => (
           <div key={dup} className="flex items-center" aria-hidden={dup === 1}>

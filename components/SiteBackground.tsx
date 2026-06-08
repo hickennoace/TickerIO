@@ -27,7 +27,7 @@ export function SiteBackground() {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(120% 80% at 50% -10%, rgba(20,28,48,0.5), transparent 60%), var(--bg)",
+            "radial-gradient(120% 80% at 50% -10%, var(--veil), transparent 60%), var(--bg)",
         }}
       />
 

@@ -3,10 +3,11 @@ import { Activity } from "lucide-react";
 import { TickerSearch } from "./TickerSearch";
 import { CommandHint } from "./CommandHint";
 import { TickerTape } from "./TickerTape";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function SiteHeader({ showSearch = true }: { showSearch?: boolean }) {
   return (
-    <header className="sticky top-0 z-40 bg-[rgba(4,6,12,0.94)]">
+    <header className="sticky top-0 z-40 bg-[var(--header-bg)]">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-4 border-b border-[var(--border)] px-4 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2">
           <span
@@ -42,6 +43,7 @@ export function SiteHeader({ showSearch = true }: { showSearch?: boolean }) {
             </Link>
           </nav>
           <CommandHint />
+          <ThemeToggle />
         </div>
       </div>
       <TickerTape />

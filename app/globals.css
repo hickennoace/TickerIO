@@ -38,8 +38,48 @@
   --bias-g: 155;
   --bias-b: 255;
 
+  /* Chrome / theme-aware surfaces */
+  --header-bg: rgba(4, 6, 12, 0.94);
+  --tape-bg: rgba(6, 9, 16, 0.92);
+  --veil: rgba(20, 28, 48, 0.5);
+  --bar-track: rgba(255, 255, 255, 0.04);
+  --shadow: 0 24px 48px -28px rgba(0, 0, 0, 0.85);
+  --scheme: dark;
+
   --radius: 18px;
   --radius-sm: 11px;
+}
+
+/* ---------- Light theme — "Daylight Terminal" ---------- */
+[data-theme="light"] {
+  --bg: #f5f7fc;
+  --bg-elev: #ffffff;
+  --panel: #ffffff;
+  --panel-2: #eef1f8;
+  --border: #e2e7f1;
+  --border-strong: #cdd5e6;
+
+  --fg: #0e1626;
+  --fg-muted: #4d5d78;
+  --fg-dim: #8593ac;
+
+  --accent: #2f6bff;
+  --accent-2: #7b4dff;
+  --accent-3: #07b39a;
+  --accent-glow: rgba(47, 107, 255, 0.25);
+
+  --up: #0c9c66;
+  --up-soft: rgba(12, 156, 102, 0.12);
+  --down: #e23838;
+  --down-soft: rgba(226, 56, 56, 0.12);
+  --warn: #c98a06;
+
+  --header-bg: rgba(255, 255, 255, 0.9);
+  --tape-bg: rgba(255, 255, 255, 0.92);
+  --veil: rgba(206, 218, 240, 0.45);
+  --bar-track: rgba(15, 22, 38, 0.06);
+  --shadow: 0 18px 40px -26px rgba(20, 32, 60, 0.4);
+  --scheme: light;
 }
 
 @theme inline {
@@ -69,7 +109,7 @@
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: var(--scheme);
 }
 
 body {
@@ -120,7 +160,7 @@ body {
   border-radius: var(--radius);
   box-shadow:
     0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
-    0 24px 48px -28px rgba(0, 0, 0, 0.85);
+    var(--shadow);
 }
 /* Gradient hairline along the top edge */
 .panel::before {
