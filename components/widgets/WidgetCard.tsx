@@ -1,4 +1,8 @@
+"use client";
+
 import { ReactNode } from "react";
+import { motion, useReducedMotion } from "motion/react";
+import { SPRING } from "@/lib/motion";
 
 export function WidgetCard({
   title,
@@ -11,8 +15,13 @@ export function WidgetCard({
   children: ReactNode;
   className?: string;
 }) {
+  const reduce = useReducedMotion();
   return (
-    <section className={`panel panel-hover p-5 ${className}`}>
+    <motion.section
+      whileHover={reduce ? undefined : { y: -3 }}
+      transition={SPRING.soft}
+      className={`panel panel-hover p-5 ${className}`}
+    >
       {title && (
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--fg-muted)]">
@@ -22,6 +31,6 @@ export function WidgetCard({
         </div>
       )}
       {children}
-    </section>
+    </motion.section>
   );
 }

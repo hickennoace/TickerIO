@@ -3,7 +3,9 @@
 import { useRouter } from "next/navigation";
 import { Search, TrendingUp } from "lucide-react";
 import { useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { useSearch } from "@/lib/hooks";
+import { scaleIn, SPRING } from "@/lib/motion";
 import type { SearchHit } from "@/lib/api";
 
 const SUGGESTIONS = ["AAPL", "NVDA", "TSLA", "BTC", "ETH", "SOL"];
@@ -86,44 +88,55 @@ export function TickerSearch({
             big ? "py-4 pl-12 pr-28 text-lg" : "py-2.5 pl-11 pr-20 text-sm"
           }`}
         />
-        <button
+        <motion.button
           type="submit"
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.96 }}
+          transition={SPRING.snappy}
           className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-xl bg-[var(--accent)] font-semibold text-white transition-opacity hover:opacity-90 ${
             big ? "px-5 py-2.5 text-sm" : "px-3 py-1.5 text-xs"
           }`}
+          style={{ y: "-50%" }}
         >
           Analyze
-        </button>
+        </motion.button>
       </form>
 
       {/* Autocomplete dropdown */}
-      {open && hits.length > 0 && (
-        <ul
-          className="panel absolute z-50 mt-2 w-full overflow-hidden p-1.5"
-          onMouseDown={(e) => e.preventDefault()}
-        >
-          {hits.map((hit, i) => (
-            <li key={`${hit.symbol}-${i}`}>
-              <button
-                onMouseEnter={() => setActive(i)}
-                onClick={() => go(hit.symbol)}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors"
-                style={{ background: i === active ? "var(--panel-2)" : "transparent" }}
-              >
-                <TrendingUp size={15} style={{ color: "var(--accent)" }} />
-                <span className="font-semibold">{hit.symbol}</span>
-                <span className="min-w-0 flex-1 truncate text-sm" style={{ color: "var(--fg-muted)" }}>
-                  {hit.name}
-                </span>
-                <span className="shrink-0 text-xs" style={{ color: "var(--fg-dim)" }}>
-                  {hit.type}
-                  {hit.exchange ? ` · ${hit.exchange}` : ""}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <AnimatePresence>
+        {open && hits.length > 0 && (
+          <motion.ul
+            variants={scaleIn}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            style={{ transformOrigin: "top" }}
+            className="panel absolute z-50 mt-2 w-full overflow-hidden p-1.5"
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            {hits.map((hit, i) => (
+              <li key={`${hit.symbol}-${i}`}>
+                <button
+                  onMouseEnter={() => setActive(i)}
+                  onClick={() => go(hit.symbol)}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors"
+                  style={{ background: i === active ? "var(--panel-2)" : "transparent" }}
+                >
+                  <TrendingUp size={15} style={{ color: "var(--accent)" }} />
+                  <span className="font-semibold">{hit.symbol}</span>
+                  <span className="min-w-0 flex-1 truncate text-sm" style={{ color: "var(--fg-muted)" }}>
+                    {hit.name}
+                  </span>
+                  <span className="shrink-0 text-xs" style={{ color: "var(--fg-dim)" }}>
+                    {hit.type}
+                    {hit.exchange ? ` · ${hit.exchange}` : ""}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
 
       {big && !open && (
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
@@ -131,13 +144,16 @@ export function TickerSearch({
             Try
           </span>
           {SUGGESTIONS.map((s) => (
-            <button
+            <motion.button
               key={s}
               onClick={() => go(s)}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              transition={SPRING.snappy}
               className="rounded-lg border px-2.5 py-1 text-xs font-semibold text-[var(--fg-muted)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--fg)]"
             >
               {s}
-            </button>
+            </motion.button>
           ))}
         </div>
       )}

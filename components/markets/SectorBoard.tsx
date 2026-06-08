@@ -2,10 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { ChevronRight } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useBatchQuotes } from "@/lib/hooks";
 import { formatPercent, direction } from "@/lib/format";
+import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { SECTORS, type SectorDef } from "@/lib/markets/leaders";
+import { DURATION, EASE, SPRING, staggerContainer } from "@/lib/motion";
 import { RankedQuotes } from "./RankedQuotes";
 import type { MiniQuote } from "@/lib/types";
 
@@ -20,15 +23,22 @@ function tint(pct: number): string {
   return "var(--panel)";
 }
 
+const tileVariants = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: DURATION.slow, ease: EASE } },
+};
+
 function SectorTile({
   sector,
   quote,
   selected,
+  reduce,
   onClick,
 }: {
   sector: SectorDef;
   quote?: MiniQuote;
   selected: boolean;
+  reduce: boolean;
   onClick: () => void;
 }) {
   const pct = quote?.changePct ?? 0;
@@ -36,9 +46,14 @@ function SectorTile({
   const color = dir === "up" ? "var(--up)" : dir === "down" ? "var(--down)" : "var(--fg-muted)";
 
   return (
-    <button
+    <motion.button
+      layout={!reduce}
+      variants={tileVariants}
+      whileHover={reduce ? undefined : { y: -3 }}
+      whileTap={reduce ? undefined : { scale: 0.98 }}
+      transition={SPRING.soft}
       onClick={onClick}
-      className="panel panel-hover relative flex flex-col items-start gap-1 p-3 text-left transition-all"
+      className="panel relative flex flex-col items-start gap-1 p-3 text-left"
       style={{
         background: quote ? tint(pct) : "var(--panel)",
         outline: selected ? "1.5px solid var(--accent)" : "none",
@@ -49,19 +64,27 @@ function SectorTile({
         <ChevronRight size={14} style={{ color: selected ? "var(--accent)" : "var(--fg-dim)" }} />
       </div>
       <div className="flex items-baseline gap-2">
-        <span className="font-mono-num text-lg font-bold" style={{ color }}>
-          {quote ? formatPercent(pct) : <Skeleton className="h-5 w-14" />}
-        </span>
+        {quote ? (
+          <AnimatedNumber
+            value={pct}
+            format={formatPercent}
+            className="font-mono-num text-lg font-bold"
+            style={{ color }}
+          />
+        ) : (
+          <Skeleton className="h-5 w-14" />
+        )}
         <span className="text-xs" style={{ color: "var(--fg-dim)" }}>
           {sector.etf}
         </span>
       </div>
-    </button>
+    </motion.button>
   );
 }
 
 export function SectorBoard() {
   const [selected, setSelected] = useState<string>("technology");
+  const reduce = useReducedMotion() ?? false;
 
   const etfSymbols = useMemo(() => SECTORS.map((s) => s.etf), []);
   const { data } = useBatchQuotes("sectors-etf", etfSymbols);
@@ -90,23 +113,40 @@ export function SectorBoard() {
         <p className="mb-3 text-xs" style={{ color: "var(--fg-dim)" }}>
           Today&apos;s move by SPDR sector ETF · click a sector for its leading stocks
         </p>
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+        <motion.div
+          className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4"
+          variants={staggerContainer(0.04)}
+          initial="hidden"
+          animate="show"
+        >
           {ordered.map((s) => (
             <SectorTile
               key={s.key}
               sector={s}
               quote={quoteFor(s.etf)}
               selected={s.key === selected}
+              reduce={reduce}
               onClick={() => setSelected(s.key)}
             />
           ))}
-        </div>
+        </motion.div>
       </div>
 
       {active && (
-        <div className="panel p-4">
+        <div className="panel overflow-hidden p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="font-display text-lg font-bold">{active.label} — leaders</h3>
+            <AnimatePresence mode="wait">
+              <motion.h3
+                key={active.key}
+                className="font-display text-lg font-bold"
+                initial={reduce ? false : { opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={reduce ? undefined : { opacity: 0, x: 8 }}
+                transition={{ duration: DURATION.fast, ease: EASE }}
+              >
+                {active.label} — leaders
+              </motion.h3>
+            </AnimatePresence>
             <span className="text-xs" style={{ color: "var(--fg-dim)" }}>
               ranked by today&apos;s move
             </span>

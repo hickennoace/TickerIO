@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 import { MiniTicker } from "./MiniTicker";
 import { useWatchlist } from "@/store/useWatchlist";
+import { fadeUp, staggerContainer } from "@/lib/motion";
 
 const BELLWETHERS: { symbol: string; label: string }[] = [
   { symbol: "^GSPC", label: "S&P 500" },
@@ -28,11 +30,19 @@ export function MarketOverview() {
           live · Yahoo Finance
         </span>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <motion.div
+        className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
+        variants={staggerContainer(0.06)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-80px" }}
+      >
         {BELLWETHERS.map((b) => (
-          <MiniTicker key={b.symbol} symbol={b.symbol} label={b.label} />
+          <motion.div key={b.symbol} variants={fadeUp}>
+            <MiniTicker symbol={b.symbol} label={b.label} />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {mounted && symbols.length > 0 && (
         <>
@@ -41,11 +51,18 @@ export function MarketOverview() {
               Your watchlist
             </h2>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <motion.div
+            className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
+            variants={staggerContainer(0.05)}
+            initial="hidden"
+            animate="show"
+          >
             {symbols.map((s) => (
-              <MiniTicker key={s} symbol={s} />
+              <motion.div key={s} variants={fadeUp}>
+                <MiniTicker symbol={s} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </>
       )}
     </div>

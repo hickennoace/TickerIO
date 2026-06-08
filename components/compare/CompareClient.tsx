@@ -4,7 +4,9 @@ import { useQueries } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
+import { SPRING } from "@/lib/motion";
 import { fetchCandles, fetchQuote, fetchTimeframes } from "@/lib/api";
 import { formatPrice, formatPercent, direction } from "@/lib/format";
 import { SymbolAutocomplete } from "@/components/SymbolAutocomplete";
@@ -90,19 +92,26 @@ export function CompareClient() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {symbols.map((s, i) => (
-            <span
-              key={s}
-              className="inline-flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-sm font-semibold"
-              style={{ borderColor: "var(--border)" }}
-            >
-              <span className="h-2.5 w-2.5 rounded-full" style={{ background: PALETTE[i % PALETTE.length] }} />
-              {s}
-              <button onClick={() => setSymbols(symbols.filter((x) => x !== s))} aria-label={`Remove ${s}`}>
-                <X size={14} style={{ color: "var(--fg-dim)" }} />
-              </button>
-            </span>
-          ))}
+          <AnimatePresence mode="popLayout">
+            {symbols.map((s, i) => (
+              <motion.span
+                key={s}
+                layout
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={SPRING.snappy}
+                className="inline-flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-sm font-semibold"
+                style={{ borderColor: "var(--border)" }}
+              >
+                <span className="h-2.5 w-2.5 rounded-full" style={{ background: PALETTE[i % PALETTE.length] }} />
+                {s}
+                <button onClick={() => setSymbols(symbols.filter((x) => x !== s))} aria-label={`Remove ${s}`}>
+                  <X size={14} style={{ color: "var(--fg-dim)" }} />
+                </button>
+              </motion.span>
+            ))}
+          </AnimatePresence>
           {symbols.length === 0 && (
             <button
               onClick={() => setSymbols(DEFAULTS)}
@@ -128,13 +137,18 @@ export function CompareClient() {
                 <button
                   key={p.key}
                   onClick={() => setPeriod(p.key)}
-                  className="rounded-md px-2.5 py-1 text-xs font-semibold transition-colors"
-                  style={{
-                    background: on ? "var(--accent)" : "transparent",
-                    color: on ? "#fff" : "var(--fg-muted)",
-                  }}
+                  className="relative rounded-md px-2.5 py-1 text-xs font-semibold transition-colors"
+                  style={{ color: on ? "#fff" : "var(--fg-muted)" }}
                 >
-                  {p.label}
+                  {on && (
+                    <motion.span
+                      layoutId="compare-period-pill"
+                      className="absolute inset-0 rounded-md"
+                      style={{ background: "var(--accent)" }}
+                      transition={SPRING.snappy}
+                    />
+                  )}
+                  <span className="relative z-10">{p.label}</span>
                 </button>
               );
             })}
