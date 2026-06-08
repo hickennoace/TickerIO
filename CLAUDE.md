@@ -313,8 +313,8 @@ Build in phases. **Do not start a phase until the previous one is green.** Each 
 - [x] Symbol search autocomplete (Yahoo search) — keyboard-navigable dropdown.
 - [x] Keyboard command palette (⌘/Ctrl-K) for instant symbol jumps + watchlist.
 - [x] Shareable deep links (every `/[ticker]` is a URL) + per-ticker OG image (next/og).
-- [ ] Multi-symbol **compare** view. *(Remaining stretch item.)*
-- ✅ *Status:* power users can move through markets via ⌘K without the mouse.
+- [x] Multi-symbol **compare** view (`/compare?symbols=…`) — normalized overlay + table.
+- ✅ *Done:* full roadmap shipped; power users can move through markets via ⌘K without the mouse.
 
 > **SEO/finish also shipped:** robots.txt, sitemap.xml, branded favicon (`app/icon.tsx`),
 > custom 404 + error boundary, dashboard loading skeleton, `metadataBase`.

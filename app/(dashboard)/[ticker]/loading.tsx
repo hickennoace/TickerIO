@@ -14,7 +14,7 @@ export default function Loading() {
         </div>
         <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_372px]">
           <div className="flex flex-col gap-5">
-            <Skeleton className="h-[480px] w-full rounded-2xl" />
+            <Skeleton className="h-[620px] w-full rounded-2xl" />
             <Skeleton className="h-40 w-full rounded-2xl" />
           </div>
           <div className="flex flex-col gap-5">

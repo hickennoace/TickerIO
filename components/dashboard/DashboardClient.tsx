@@ -58,7 +58,7 @@ export function DashboardClient({ symbol }: { symbol: string }) {
               {quote ? (
                 <ChartPanel symbol={quote.symbol} display={quote.display} assetClass={quote.assetClass} />
               ) : (
-                <Skeleton className="h-[480px] w-full rounded-2xl" />
+                <Skeleton className="h-[620px] w-full rounded-2xl" />
               )}
             </Reveal>
             <Reveal delay={0.1}>
