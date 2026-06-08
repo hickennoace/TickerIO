@@ -10,6 +10,7 @@ import {
   useSentiment,
   useTimeframes,
   useTrendBias,
+  usePriceStream,
 } from "@/lib/hooks";
 import { useBias } from "@/store/useBias";
 import { Reveal } from "@/components/ui/Reveal";
@@ -33,6 +34,9 @@ export function DashboardClient({ symbol }: { symbol: string }) {
   const newsQ = useNews(symbol);
   const aiQ = useAiSummary(symbol);
   const calQ = useCalendar();
+
+  // Live price ticks via SSE → patches the quote cache in place.
+  usePriceStream(symbol);
 
   const quote = quoteQ.data;
   const spark = candlesQ.data?.candles.map((c) => c.c) ?? [];

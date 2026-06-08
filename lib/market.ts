@@ -14,7 +14,7 @@ export function resolve(input: string): ResolvedSymbol {
 
 export async function quote(input: string): Promise<{ value: Quote; stale: boolean }> {
   const r = resolve(input);
-  const { value, stale } = await cached(`quote:${r.symbol}`, 20, () => getQuote(r));
+  const { value, stale } = await cached(`quote:${r.symbol}`, 6, () => getQuote(r));
   return { value, stale };
 }
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import type { QuoteResponse } from "@/lib/api";
 import {
   fetchAiSummary,
   fetchCalendar,
@@ -38,8 +39,54 @@ export function useQuote(symbol: string) {
   return useQuery({
     queryKey: ["quote", symbol],
     queryFn: () => fetchQuote(symbol),
-    refetchInterval: 20_000,
+    // Polling is a fallback; usePriceStream pushes live ticks when connected.
+    refetchInterval: 30_000,
   });
+}
+
+interface PriceTick {
+  symbol: string;
+  price: number;
+  change: number;
+  changePct: number;
+  asOf: string;
+  stale?: boolean;
+}
+
+/**
+ * Live price stream via SSE. Patches the React Query ["quote", symbol] cache on
+ * every tick, so PriceHeader (and anything else reading the quote) updates in
+ * real time. Auto-reconnects (EventSource) and is a no-op without browser support.
+ */
+export function usePriceStream(symbol: string, enabled = true) {
+  const qc = useQueryClient();
+  useEffect(() => {
+    if (!enabled || !symbol || typeof window === "undefined" || typeof EventSource === "undefined") {
+      return;
+    }
+    const es = new EventSource(`/api/stream?symbol=${encodeURIComponent(symbol)}`);
+    es.addEventListener("price", (e) => {
+      try {
+        const tick = JSON.parse((e as MessageEvent).data) as PriceTick;
+        qc.setQueryData<QuoteResponse>(["quote", symbol], (prev) =>
+          prev
+            ? {
+                ...prev,
+                price: tick.price,
+                change: tick.change,
+                changePct: tick.changePct,
+                asOf: tick.asOf,
+                stale: tick.stale ?? false,
+              }
+            : prev,
+        );
+      } catch {
+        /* ignore malformed tick */
+      }
+    });
+    // EventSource auto-reconnects on error; nothing to do here.
+    return () => es.close();
+  }, [symbol, enabled, qc]);
 }
 
 export function useCandles(symbol: string, range = "1d", interval = "5m") {

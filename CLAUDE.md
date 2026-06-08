@@ -334,13 +334,13 @@ Build in phases. **Do not start a phase until the previous one is green.** Each 
 - [ ] Full `prefers-reduced-motion` fallbacks; 60fps (transform/opacity only).
 - ✅ *Done when:* the app feels unmistakably high-end and alive, on every page.
 
-### Phase 9 — Realtime & Personalization 🔮 (next)
-- [ ] Live price streaming (SSE/WebSocket) to replace polling where possible.
-- [ ] Dedicated `/watchlist` page with mini-charts and live deltas.
-- [ ] Price + macro-event alerts via browser notifications.
+### Phase 9 — Realtime & Personalization 🔮 (in progress)
+- [x] **Live price streaming (SSE)** — `/api/stream` emits ticks (~5s, bounded 45s, auto-reconnect); `usePriceStream` patches the React Query quote cache in place. Perf-safe on Vercel Fluid Compute.
+- [x] **Dedicated `/watchlist` page** — live quote cards with intraday sparklines, remove, empty-state quick-add.
+- [x] **Price alerts** via browser notifications — `useAlerts` store + `AlertButton` (above/below threshold) + global `AlertWatcher` (one-shot, fires while open).
 - [ ] Drag-to-reorder dashboard widgets; persisted layout.
 - [ ] Optional light "parchment" theme variant.
-- ✅ *Done when:* the dashboard updates without polling and adapts to each user.
+- 🔶 *Status:* prices stream live; users get a watchlist + personal alerts. Layout DnD + light theme remain.
 
 ---
 

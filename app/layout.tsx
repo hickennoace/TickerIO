@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { CommandPalette } from "@/components/CommandPalette";
 import { SiteBackground } from "@/components/SiteBackground";
+import { AlertWatcher } from "@/components/AlertWatcher";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,6 +54,7 @@ export default function RootLayout({
         <Providers>
           {children}
           <CommandPalette />
+          <AlertWatcher />
         </Providers>
       </body>
     </html>

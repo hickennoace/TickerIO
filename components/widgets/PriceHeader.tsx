@@ -7,6 +7,7 @@ import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { LivePulse } from "@/components/ui/LivePulse";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { WatchStar } from "@/components/WatchStar";
+import { AlertButton } from "@/components/AlertButton";
 import { Sparkline } from "./Sparkline";
 
 function relTime(iso: string): string {
@@ -105,6 +106,7 @@ export function PriceHeader({
           ) : (
             <Skeleton className="h-16 w-64" />
           )}
+          <AlertButton symbol={quote.symbol} price={quote.price} currency={currency} />
           <WatchStar symbol={quote.symbol} />
         </div>
       </div>
