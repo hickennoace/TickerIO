@@ -29,8 +29,12 @@ export function SiteHeader({ showSearch = true }: { showSearch?: boolean }) {
 
         <div className="ml-auto flex items-center gap-3">
           <nav className="hidden items-center gap-5 text-sm text-[var(--fg-muted)] md:flex">
-            <span className="cursor-default">Markets</span>
-            <span className="cursor-default">Screener</span>
+            <Link href="/" className="transition-colors hover:text-[var(--fg)]">
+              Markets
+            </Link>
+            <Link href="/compare" className="transition-colors hover:text-[var(--fg)]">
+              Compare
+            </Link>
           </nav>
           <CommandHint />
         </div>
