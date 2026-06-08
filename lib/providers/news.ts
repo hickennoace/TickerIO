@@ -67,11 +67,25 @@ export async function getCoinDeskNews(): Promise<NewsItem[]> {
   return parseRss(xml, "CoinDesk", "coindesk", 10);
 }
 
-/** FXStreet headlines — a leading dedicated forex/macro news source. */
+/**
+ * FXStreet headlines — a leading dedicated forex/macro news source.
+ *
+ * FXStreet's own RSS works from residential IPs but is blocked from cloud
+ * datacenters (Vercel), so we pull FXStreet's content via Google News RSS
+ * (`site:fxstreet.com`), which is datacenter-friendly. Items keep FXStreet as
+ * the source; links resolve to the original FXStreet articles.
+ */
 export async function getFXStreetNews(): Promise<NewsItem[]> {
-  const res = await fetchWith("https://www.fxstreet.com/rss/news", {
-    headers: { Accept: "application/rss+xml,text/xml,*/*" },
-  });
+  const url =
+    "https://news.google.com/rss/search?q=" +
+    encodeURIComponent("site:fxstreet.com when:3d") +
+    "&hl=en-US&gl=US&ceid=US:en";
+  const res = await fetchWith(url, { headers: { Accept: "application/rss+xml,text/xml,*/*" } });
   const xml = await res.text();
-  return parseRss(xml, "FXStreet", "fxstreet", 10);
+  // Google News uses <source> = "FXStreet"; strip a trailing " - FXStreet" suffix.
+  return parseRss(xml, "FXStreet", "fxstreet", 10).map((it) => ({
+    ...it,
+    source: "FXStreet",
+    headline: it.headline.replace(/\s*[-|]\s*FXStreet\s*$/i, ""),
+  }));
 }
