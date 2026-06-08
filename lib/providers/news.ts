@@ -1,5 +1,7 @@
 /**
- * Yahoo Finance per-symbol news via the public RSS headline feed.
+ * News providers.
+ * - Yahoo Finance per-symbol RSS (all asset classes).
+ * - CoinDesk general crypto RSS (added for crypto symbols).
  * Lightweight regex parse — no XML dependency needed server-side.
  */
 
@@ -8,19 +10,43 @@ import type { NewsItem } from "@/lib/types";
 
 function decode(s: string): string {
   return s
-    .replace(/<!\[CDATA\[(.*?)\]\]>/gs, "$1")
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&apos;/g, "'")
+    .replace(/<[^>]+>/g, "")
     .trim();
 }
 
 function tag(block: string, name: string): string {
-  const m = block.match(new RegExp(`<${name}>([\\s\\S]*?)</${name}>`, "i"));
+  const m = block.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)</${name}>`, "i"));
   return m ? decode(m[1]) : "";
+}
+
+/** Parse a standard RSS 2.0 feed into NewsItems. */
+function parseRss(xml: string, source: string, idPrefix: string, limit: number): NewsItem[] {
+  const items: NewsItem[] = [];
+  const blocks = xml.split(/<item>/i).slice(1);
+  for (let i = 0; i < blocks.length && items.length < limit; i++) {
+    const block = blocks[i];
+    const headline = tag(block, "title");
+    const link = tag(block, "link");
+    const pub = tag(block, "pubDate");
+    if (!headline) continue;
+    const srcTag = block.match(/<source[^>]*>([\s\S]*?)<\/source>/i);
+    items.push({
+      id: `${idPrefix}-${i}`,
+      headline,
+      url: link,
+      source: srcTag ? decode(srcTag[1]) : source,
+      publishedAt: pub ? new Date(pub).toISOString() : new Date().toISOString(),
+      kind: "news",
+    });
+  }
+  return items;
 }
 
 export async function getNews(symbol: string): Promise<NewsItem[]> {
@@ -29,23 +55,14 @@ export async function getNews(symbol: string): Promise<NewsItem[]> {
   )}&region=US&lang=en-US`;
   const res = await fetchWith(url, { headers: { Accept: "application/rss+xml,text/xml,*/*" } });
   const xml = await res.text();
+  return parseRss(xml, "Yahoo Finance", symbol, 10);
+}
 
-  const items: NewsItem[] = [];
-  const blocks = xml.split(/<item>/i).slice(1);
-  for (let i = 0; i < blocks.length && items.length < 10; i++) {
-    const block = blocks[i];
-    const headline = tag(block, "title");
-    const link = tag(block, "link");
-    const pub = tag(block, "pubDate");
-    if (!headline) continue;
-    const sourceMatch = block.match(/<source[^>]*>([\s\S]*?)<\/source>/i);
-    items.push({
-      id: `${symbol}-${i}`,
-      headline,
-      url: link,
-      source: sourceMatch ? decode(sourceMatch[1]) : "Yahoo Finance",
-      publishedAt: pub ? new Date(pub).toISOString() : new Date().toISOString(),
-    });
-  }
-  return items;
+/** CoinDesk general crypto headlines — a leading dedicated crypto news source. */
+export async function getCoinDeskNews(): Promise<NewsItem[]> {
+  const res = await fetchWith("https://www.coindesk.com/arc/outboundfeeds/rss/?outputType=xml", {
+    headers: { Accept: "application/rss+xml,text/xml,*/*" },
+  });
+  const xml = await res.text();
+  return parseRss(xml, "CoinDesk", "coindesk", 10);
 }

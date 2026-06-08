@@ -65,7 +65,7 @@ export function DashboardClient({ symbol }: { symbol: string }) {
               <AiSummaryCard data={aiQ.data} loading={aiQ.isLoading} />
             </Reveal>
             <Reveal delay={0.15}>
-              <NewsFeed items={newsQ.data?.items} source={newsQ.data?.source} loading={newsQ.isLoading} />
+              <NewsFeed items={newsQ.data?.items} sources={newsQ.data?.sources} loading={newsQ.isLoading} />
             </Reveal>
           </div>
 

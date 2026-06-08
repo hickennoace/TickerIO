@@ -62,6 +62,10 @@ export interface NewsItem {
   headline: string;
   url: string;
   publishedAt: string;
+  /** "news" = a published article; "event" = an upcoming macro calendar event. */
+  kind?: "news" | "event";
+  /** For event items only — Forex Factory impact level. */
+  impact?: "High" | "Medium" | "Low" | "Holiday";
 }
 
 export interface SentimentResult {

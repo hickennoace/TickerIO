@@ -1,9 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cached } from "@/lib/cache";
 import { resolve } from "@/lib/market";
-import { getNews } from "@/lib/providers/news";
+import { getNews, getCoinDeskNews } from "@/lib/providers/news";
+import { getEconomicCalendar } from "@/lib/providers/calendar";
+import type { NewsItem } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+
+/** Upcoming high-impact Forex Factory events as forward-looking news items. */
+async function forexFactoryEvents(): Promise<NewsItem[]> {
+  try {
+    const { value } = await cached("calendar:thisweek", 3600, getEconomicCalendar);
+    const now = Date.now();
+    return value
+      .filter((e) => e.impact === "High" && new Date(e.date).getTime() >= now)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .slice(0, 2)
+      .map((e, i) => ({
+        id: `ff-${i}`,
+        headline: `${e.country} · ${e.title}${e.forecast ? ` (forecast ${e.forecast})` : ""}`,
+        url: "https://www.forexfactory.com/calendar",
+        source: "Forex Factory",
+        publishedAt: new Date(e.date).toISOString(),
+        kind: "event" as const,
+        impact: e.impact,
+      }));
+  } catch {
+    return [];
+  }
+}
+
+function dedupe(items: NewsItem[]): NewsItem[] {
+  const seen = new Set<string>();
+  return items.filter((it) => {
+    const key = it.headline.toLowerCase().slice(0, 80);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 
 export async function GET(req: NextRequest) {
   const symbol = req.nextUrl.searchParams.get("symbol");
@@ -11,8 +46,25 @@ export async function GET(req: NextRequest) {
 
   try {
     const r = resolve(symbol);
-    const { value } = await cached(`news:${r.symbol}`, 600, () => getNews(r.symbol));
-    return NextResponse.json({ items: value, source: "Yahoo Finance", asOf: new Date().toISOString() });
+
+    const tasks: Promise<NewsItem[]>[] = [
+      cached(`news:${r.symbol}`, 600, () => getNews(r.symbol)).then((x) => x.value).catch(() => []),
+    ];
+    if (r.assetClass === "crypto") {
+      tasks.push(cached("news:coindesk", 600, getCoinDeskNews).then((x) => x.value).catch(() => []));
+    }
+
+    const [events, ...newsGroups] = await Promise.all([forexFactoryEvents(), ...tasks]);
+
+    const articles = dedupe(newsGroups.flat()).sort(
+      (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+    );
+
+    // Forward-looking macro events first, then the freshest articles.
+    const items = [...events, ...articles].slice(0, 12);
+
+    const sources = Array.from(new Set(items.map((i) => i.source)));
+    return NextResponse.json({ items, sources, asOf: new Date().toISOString() });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "failed";
     return NextResponse.json({ error: msg, items: [] }, { status: 200 });

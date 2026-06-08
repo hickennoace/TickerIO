@@ -47,7 +47,7 @@ export const fetchTrendBias = (symbol: string) =>
   );
 
 export const fetchNews = (symbol: string) =>
-  get<{ items: NewsItem[]; source: string; asOf: string }>(
+  get<{ items: NewsItem[]; sources: string[]; asOf: string }>(
     `/api/news?symbol=${encodeURIComponent(symbol)}`,
   );
 
