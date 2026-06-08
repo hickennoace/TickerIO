@@ -39,6 +39,20 @@ export async function cached<T>(
   }
 }
 
+/** Read a still-fresh cached value, or undefined. For callers that need to pick
+ *  the TTL based on the computed result (e.g. cache a good LLM summary for a day
+ *  but a fallback for only minutes so it retries). */
+export function cacheGet<T>(key: string): T | undefined {
+  const hit = store.get(key) as Entry<T> | undefined;
+  return hit && hit.expires > Date.now() ? hit.value : undefined;
+}
+
+/** Write a value with an explicit TTL. Pairs with cacheGet. */
+export function cacheSet<T>(key: string, value: T, ttlSeconds: number): void {
+  const now = Date.now();
+  store.set(key, { value, expires: now + ttlSeconds * 1000, storedAt: now });
+}
+
 export function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   return fetchWith(url, init).then((r) => r.json() as Promise<T>);
 }

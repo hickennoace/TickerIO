@@ -51,9 +51,9 @@ function ArticleSummary({ symbol, item }: { symbol: string; item: NewsItem }) {
           <Skeleton className="h-3.5 w-11/12" />
           <Skeleton className="h-3.5 w-3/4" />
         </div>
-      ) : isError || !data ? (
+      ) : isError || !data || data.generatedBy === "unavailable" ? (
         <p className="text-[13px]" style={{ color: "var(--fg-dim)" }}>
-          Couldn&apos;t summarize this story right now.
+          {data?.summary ?? "Couldn't summarize this story right now."}
         </p>
       ) : (
         <>

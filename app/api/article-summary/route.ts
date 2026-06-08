@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cached } from "@/lib/cache";
-import { summarizeArticle } from "@/lib/article-summary";
+import { cacheGet, cacheSet } from "@/lib/cache";
+import { summarizeArticle, type ArticleSummary } from "@/lib/article-summary";
 
 export const dynamic = "force-dynamic";
 
@@ -36,9 +36,14 @@ export async function POST(req: NextRequest) {
 
   try {
     const key = `article-summary:${hash(url || headline)}`;
-    const { value } = await cached(key, 86_400, () =>
-      summarizeArticle(symbol, headline, description, url),
-    );
+    const hit = cacheGet<ArticleSummary>(key);
+    if (hit) return NextResponse.json(hit);
+
+    const value = await summarizeArticle(symbol, headline, description, url);
+    // Cache real LLM summaries for a day; cache fallbacks/unavailable briefly so
+    // a transient LLM hiccup (rate limit) retries soon instead of sticking 24h.
+    const isLlm = /gemini|groq/i.test(value.generatedBy);
+    cacheSet(key, value, isLlm ? 86_400 : 600);
     return NextResponse.json(value);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "failed";

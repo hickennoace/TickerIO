@@ -9,6 +9,10 @@
 
 import { fetchWith } from "@/lib/cache";
 
+/** Phrases that mark page chrome (consent walls, nav, legal), not article prose. */
+const JUNK_RE =
+  /(we and our partners|cookie|consent|privacy policy|terms of (use|service)|sign in to|please enable|enable javascript|your browser|all rights reserved|do not sell|advertisement|subscribe to|create a free account|already a subscriber)/i;
+
 function decodeEntities(s: string): string {
   return s
     .replace(/&amp;/g, "&")
@@ -37,10 +41,13 @@ export async function fetchArticleText(url: string): Promise<string> {
           .replace(/\s+/g, " ")
           .trim(),
       )
-      // Skip boilerplate (cookie notices, bylines, captions) — keep real prose.
-      .filter((t) => t.length > 60);
+      // Skip boilerplate (cookie/consent walls, nav, captions) — keep real prose.
+      .filter((t) => t.length > 60 && !JUNK_RE.test(t));
 
-    return paragraphs.join(" ").slice(0, 2400);
+    const joined = paragraphs.join(" ").trim();
+    // If we couldn't get real prose (consent wall, JS-only app, login page),
+    // bail so callers fall back to the cleaner feed excerpt instead of chrome.
+    return joined.length >= 180 ? joined.slice(0, 2400) : "";
   } catch {
     return "";
   }
