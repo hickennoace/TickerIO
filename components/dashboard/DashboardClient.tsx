@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import {
   useAiSummary,
   useCalendar,
@@ -10,7 +11,7 @@ import {
   useTimeframes,
   useTrendBias,
 } from "@/lib/hooks";
-import { AuroraBackground } from "@/components/ui/AuroraBackground";
+import { useBias } from "@/store/useBias";
 import { Reveal } from "@/components/ui/Reveal";
 import { PriceHeader } from "@/components/widgets/PriceHeader";
 import { ChartPanel } from "@/components/widgets/ChartPanel";
@@ -37,10 +38,15 @@ export function DashboardClient({ symbol }: { symbol: string }) {
   const spark = candlesQ.data?.candles.map((c) => c.c) ?? [];
   const bias = biasQ.data?.bias ?? 0;
 
+  // Tint the global living background to this symbol's bias; reset on leave.
+  const setBias = useBias((s) => s.setBias);
+  useEffect(() => {
+    setBias(bias);
+    return () => setBias(0);
+  }, [bias, setBias]);
+
   return (
     <>
-      <AuroraBackground bias={bias} />
-
       <main className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6">
         <Reveal>
           <PriceHeader
@@ -65,7 +71,12 @@ export function DashboardClient({ symbol }: { symbol: string }) {
               <AiSummaryCard data={aiQ.data} loading={aiQ.isLoading} />
             </Reveal>
             <Reveal delay={0.15}>
-              <NewsFeed items={newsQ.data?.items} sources={newsQ.data?.sources} loading={newsQ.isLoading} />
+              <NewsFeed
+                items={newsQ.data?.items}
+                sources={newsQ.data?.sources}
+                digest={newsQ.data?.digest}
+                loading={newsQ.isLoading}
+              />
             </Reveal>
           </div>
 

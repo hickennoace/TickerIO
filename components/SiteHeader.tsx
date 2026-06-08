@@ -2,21 +2,23 @@ import Link from "next/link";
 import { Activity } from "lucide-react";
 import { TickerSearch } from "./TickerSearch";
 import { CommandHint } from "./CommandHint";
+import { TickerTape } from "./TickerTape";
 
 export function SiteHeader({ showSearch = true }: { showSearch?: boolean }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[rgba(5,7,13,0.72)] backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-4 px-4 sm:px-6">
+    <header className="sticky top-0 z-40 bg-[rgba(4,6,12,0.72)] backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-4 border-b border-[var(--border)] px-4 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2">
           <span
             className="grid h-8 w-8 place-items-center rounded-lg"
             style={{
               background: "linear-gradient(135deg, var(--accent), var(--accent-2))",
+              boxShadow: "0 6px 18px -6px var(--accent-glow)",
             }}
           >
             <Activity size={18} strokeWidth={2.5} color="white" />
           </span>
-          <span className="text-lg font-bold tracking-tight">
+          <span className="font-display text-lg font-bold tracking-tight">
             Ticker<span style={{ color: "var(--accent)" }}>IO</span>
           </span>
         </Link>
@@ -39,6 +41,7 @@ export function SiteHeader({ showSearch = true }: { showSearch?: boolean }) {
           <CommandHint />
         </div>
       </div>
+      <TickerTape />
     </header>
   );
 }

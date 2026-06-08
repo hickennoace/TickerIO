@@ -60,7 +60,7 @@ export function PriceHeader({
       <div className="flex flex-wrap items-start justify-between gap-6">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold tracking-tight">{quote.display}</h1>
+            <h1 className="font-display text-4xl font-extrabold tracking-tight">{quote.display}</h1>
             <span
               className="rounded-md border px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-[var(--fg-muted)]"
               style={{ borderColor: "var(--border-strong)" }}

@@ -1,38 +1,45 @@
 @import "tailwindcss";
 
 /* ----------------------------------------------------------------------------
-   TickerIO — premium dark fintech design system
-   Dark-first. UTC-honest data, but a UI that feels like a trading terminal.
+   TickerIO — "Obsidian Terminal" design system
+   A luxury trading desk after dark: deep obsidian, living background,
+   editorial display type, precise mono numerals. Refined, not noisy.
 ---------------------------------------------------------------------------- */
 
 :root {
-  /* Surfaces */
-  --bg: #05070d;
-  --bg-elev: #0a0e18;
-  --panel: #0e131f;
-  --panel-2: #131a29;
-  --border: #1d2435;
-  --border-strong: #2a3650;
+  /* Surfaces — deep obsidian */
+  --bg: #04060c;
+  --bg-elev: #080b14;
+  --panel: #0b101b;
+  --panel-2: #111827;
+  --border: #1b2333;
+  --border-strong: #2b3852;
 
   /* Text */
-  --fg: #e7ecf5;
-  --fg-muted: #8a97b0;
-  --fg-dim: #586079;
+  --fg: #eef2fa;
+  --fg-muted: #94a1ba;
+  --fg-dim: #5d667e;
 
   /* Brand / accent */
-  --accent: #4f8cff;
-  --accent-2: #7c5cff;
-  --accent-glow: rgba(79, 140, 255, 0.35);
+  --accent: #5b9bff;
+  --accent-2: #9a6bff;
+  --accent-3: #2ee6c4;
+  --accent-glow: rgba(91, 155, 255, 0.4);
 
   /* Market semantics */
-  --up: #16c784;
-  --up-soft: rgba(22, 199, 132, 0.12);
-  --down: #ea3943;
-  --down-soft: rgba(234, 57, 67, 0.12);
-  --warn: #f0b90b;
+  --up: #1fd396;
+  --up-soft: rgba(31, 211, 150, 0.12);
+  --down: #ff4d5e;
+  --down-soft: rgba(255, 77, 94, 0.12);
+  --warn: #f7b733;
 
-  --radius: 16px;
-  --radius-sm: 10px;
+  /* Live bias tint (set by the dashboard via SiteBackground) */
+  --bias-r: 91;
+  --bias-g: 155;
+  --bias-b: 255;
+
+  --radius: 18px;
+  --radius-sm: 11px;
 }
 
 @theme inline {
@@ -47,11 +54,13 @@
   --color-fg-dim: var(--fg-dim);
   --color-accent: var(--accent);
   --color-accent-2: var(--accent-2);
+  --color-accent-3: var(--accent-3);
   --color-up: var(--up);
   --color-down: var(--down);
   --color-warn: var(--warn);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display);
   --radius-xl: var(--radius);
 }
 
@@ -64,16 +73,18 @@ html {
 }
 
 body {
-  background:
-    radial-gradient(1200px 600px at 15% -10%, rgba(79, 140, 255, 0.10), transparent 60%),
-    radial-gradient(1000px 500px at 100% 0%, rgba(124, 92, 255, 0.08), transparent 55%),
-    var(--bg);
+  background: var(--bg);
   color: var(--fg);
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* Numeric / price typography */
+/* ---------- Typography ---------- */
+.font-display {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  letter-spacing: -0.02em;
+}
 .tabular {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
@@ -81,24 +92,111 @@ body {
 .font-mono-num {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
-/* Glass panel */
+/* Animated gradient text for hero accents */
+.text-gradient {
+  background: linear-gradient(100deg, var(--accent), var(--accent-3) 40%, var(--accent-2) 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: textshine 6s linear infinite;
+}
+@keyframes textshine {
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* ---------- Panels ---------- */
 .panel {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0) 40%), var(--panel);
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0) 42%),
+    var(--panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.03) inset, 0 20px 40px -24px rgba(0, 0, 0, 0.8);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
+    0 24px 48px -28px rgba(0, 0, 0, 0.85);
+}
+/* Gradient hairline along the top edge */
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(91, 155, 255, 0.45),
+    rgba(154, 107, 255, 0.35),
+    transparent
+  );
+  opacity: 0.7;
+  pointer-events: none;
 }
 .panel-hover {
-  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 .panel-hover:hover {
   border-color: var(--border-strong);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 30px 60px -28px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(91, 155, 255, 0.08),
+    0 0 40px -10px rgba(91, 155, 255, 0.15);
 }
 
-/* Skeleton shimmer */
+/* ---------- Living background layers ---------- */
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(120, 140, 180, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(120, 140, 180, 0.06) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 35%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 35%, transparent 80%);
+  animation: griddrift 24s ease-in-out infinite alternate;
+}
+@keyframes griddrift {
+  from { background-position: 0 0; }
+  to { background-position: 56px 28px; }
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- Ticker tape marquee ---------- */
+.marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 50s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ---------- Skeleton shimmer ---------- */
 .skeleton {
   position: relative;
   overflow: hidden;
@@ -110,27 +208,14 @@ body {
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.06),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.07), transparent);
   animation: shimmer 1.4s infinite;
 }
 @keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
+  100% { transform: translateX(100%); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .skeleton::after {
-    animation: none;
-  }
-}
-
-/* Thin scrollbars */
+/* ---------- Scrollbars ---------- */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -142,4 +227,14 @@ body {
 }
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after,
+  .bg-grid,
+  .marquee-track,
+  .text-gradient {
+    animation: none !important;
+  }
 }

@@ -323,6 +323,25 @@ Build in phases. **Do not start a phase until the previous one is green.** Each 
 > pushes currently create Previews — production is updated via `vercel deploy` + `vercel promote`.
 > Fix once in dashboard: Settings → Git → Production Branch → `main`.
 
+### Phase 8 — Visual Identity & Motion System 🎨
+**Aesthetic: "Obsidian Terminal" — a luxury trading desk after dark.** Refined, not noisy.
+- [ ] Display typeface (**Bricolage Grotesque**) for headlines + Geist Mono tabular numerals.
+- [ ] Deeper obsidian palette; gradient-hairline panels with hover glow.
+- [ ] **Living background** (global): drifting gradient orbs + perspective grid + film grain.
+- [ ] **Bias-reactive** background tint (green/red/blue) shared via a `useBias` store.
+- [ ] **Live ticker tape** — continuously scrolling marquee of bellwether quotes.
+- [ ] Animated gradient hero text; orchestrated staggered page-load reveals.
+- [ ] Full `prefers-reduced-motion` fallbacks; 60fps (transform/opacity only).
+- ✅ *Done when:* the app feels unmistakably high-end and alive, on every page.
+
+### Phase 9 — Realtime & Personalization 🔮 (next)
+- [ ] Live price streaming (SSE/WebSocket) to replace polling where possible.
+- [ ] Dedicated `/watchlist` page with mini-charts and live deltas.
+- [ ] Price + macro-event alerts via browser notifications.
+- [ ] Drag-to-reorder dashboard widgets; persisted layout.
+- [ ] Optional light "parchment" theme variant.
+- ✅ *Done when:* the dashboard updates without polling and adapts to each user.
+
 ---
 
 ## 7. Coding Guidelines (apply on every change)

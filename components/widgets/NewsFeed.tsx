@@ -1,7 +1,8 @@
 "use client";
 
-import { CalendarClock, ExternalLink } from "lucide-react";
+import { CalendarClock, ExternalLink, Sparkles } from "lucide-react";
 import type { NewsItem } from "@/lib/types";
+import type { NewsDigest } from "@/lib/api";
 import { WidgetCard } from "./WidgetCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -26,13 +27,19 @@ function sourceTint(source: string): string {
   return "var(--accent)";
 }
 
+function leanColor(lean?: NewsDigest["lean"]): string {
+  return lean === "positive" ? "var(--up)" : lean === "negative" ? "var(--down)" : "var(--warn)";
+}
+
 export function NewsFeed({
   items,
   sources,
+  digest,
   loading,
 }: {
   items?: NewsItem[];
   sources?: string[];
+  digest?: NewsDigest | null;
   loading: boolean;
 }) {
   return (
@@ -99,6 +106,31 @@ export function NewsFeed({
             );
           })}
         </ul>
+      )}
+
+      {/* Plain-language AI digest of the headlines */}
+      {!loading && digest && (
+        <div
+          className="mt-4 rounded-xl border p-3"
+          style={{ borderColor: "var(--border)", background: "rgba(255,255,255,0.015)" }}
+        >
+          <div className="mb-1.5 flex items-center gap-1.5">
+            <Sparkles size={13} style={{ color: leanColor(digest.lean) }} />
+            <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--fg-muted)" }}>
+              What this means
+            </span>
+            <span
+              className="ml-auto rounded px-1.5 py-0.5 text-[10px] font-semibold capitalize"
+              style={{ color: leanColor(digest.lean), background: "var(--panel-2)" }}
+            >
+              {digest.lean}
+            </span>
+          </div>
+          <p className="text-[13px] leading-relaxed text-[var(--fg)]">{digest.text}</p>
+          <p className="mt-2 text-[10px]" style={{ color: "var(--fg-dim)" }}>
+            Plain-language summary · {digest.generatedBy} · not financial advice
+          </p>
+        </div>
       )}
     </WidgetCard>
   );

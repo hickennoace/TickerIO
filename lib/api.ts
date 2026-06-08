@@ -46,8 +46,13 @@ export const fetchTrendBias = (symbol: string) =>
     `/api/trend-bias?symbol=${encodeURIComponent(symbol)}`,
   );
 
+export interface NewsDigest {
+  text: string;
+  lean: "positive" | "negative" | "mixed";
+  generatedBy: string;
+}
 export const fetchNews = (symbol: string) =>
-  get<{ items: NewsItem[]; sources: string[]; asOf: string }>(
+  get<{ items: NewsItem[]; sources: string[]; digest: NewsDigest | null; asOf: string }>(
     `/api/news?symbol=${encodeURIComponent(symbol)}`,
   );
 
