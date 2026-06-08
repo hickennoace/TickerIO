@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cached } from "@/lib/cache";
 import { resolve } from "@/lib/market";
-import { getNews, getCoinDeskNews, getFXStreetNews } from "@/lib/providers/news";
+import {
+  getNews,
+  getCoinDeskNews,
+  getFXStreetNews,
+  getCNBCNews,
+  getMarketWatchNews,
+  getCointelegraphNews,
+  getDecryptNews,
+} from "@/lib/providers/news";
 import { getEconomicCalendar } from "@/lib/providers/calendar";
 import type { NewsItem } from "@/lib/types";
 
@@ -47,24 +55,49 @@ export async function GET(req: NextRequest) {
   try {
     const r = resolve(symbol);
 
-    const tasks: Promise<NewsItem[]>[] = [
-      cached(`news:${r.symbol}`, 600, () => getNews(r.symbol)).then((x) => x.value).catch(() => []),
-    ];
+    const src = (key: string, fn: () => Promise<NewsItem[]>) =>
+      cached(key, 600, fn).then((x) => x.value).catch(() => []);
+
+    // Per-symbol Yahoo for every asset, then asset-class-specific newsrooms.
+    const tasks: Promise<NewsItem[]>[] = [src(`news:${r.symbol}`, () => getNews(r.symbol))];
+
+    if (r.assetClass === "equity" || r.assetClass === "index") {
+      tasks.push(src("news:cnbc", getCNBCNews), src("news:marketwatch", getMarketWatchNews));
+    }
     if (r.assetClass === "crypto") {
-      tasks.push(cached("news:coindesk", 600, getCoinDeskNews).then((x) => x.value).catch(() => []));
+      tasks.push(
+        src("news:coindesk", getCoinDeskNews),
+        src("news:cointelegraph", getCointelegraphNews),
+        src("news:decrypt", getDecryptNews),
+      );
     }
     if (r.assetClass === "forex") {
-      tasks.push(cached("news:fxstreet", 600, getFXStreetNews).then((x) => x.value).catch(() => []));
+      tasks.push(src("news:fxstreet", getFXStreetNews));
     }
 
     const [events, ...newsGroups] = await Promise.all([forexFactoryEvents(), ...tasks]);
 
-    const articles = dedupe(newsGroups.flat()).sort(
-      (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
-    );
+    // Sort each source newest-first, then round-robin interleave so the feed
+    // shows a balance across newsrooms rather than letting one dominate by
+    // recency — the whole point is multi-source capital-markets coverage.
+    for (const g of newsGroups) {
+      g.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+    }
+    const interleaved: NewsItem[] = [];
+    for (let round = 0, more = true; more; round++) {
+      more = false;
+      for (const g of newsGroups) {
+        const item = g[round];
+        if (item) {
+          interleaved.push(item);
+          more = true;
+        }
+      }
+    }
+    const articles = dedupe(interleaved);
 
-    // Forward-looking macro events first, then the freshest articles.
-    const items = [...events, ...articles].slice(0, 12);
+    // Forward-looking macro events first, then the balanced article mix.
+    const items = [...events, ...articles].slice(0, 14);
 
     const sources = Array.from(new Set(items.map((i) => i.source)));
     return NextResponse.json({ items, sources, asOf: new Date().toISOString() });

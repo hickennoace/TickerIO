@@ -11,12 +11,17 @@ import type { NewsItem } from "@/lib/types";
 function decode(s: string): string {
   return s
     .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    // Numeric/hex entities (e.g. &#x2019; curly quote, &#8217;) — common in
+    // MarketWatch/CNBC titles.
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(parseInt(d, 10)))
+    .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
     .replace(/&apos;/g, "'")
+    // Strip tags last, so any revealed by &lt;/&gt; decoding are removed too.
     .replace(/<[^>]+>/g, "")
     .trim();
 }
@@ -70,24 +75,88 @@ export async function getCoinDeskNews(): Promise<NewsItem[]> {
 }
 
 /**
- * FXStreet headlines — a leading dedicated forex/macro news source.
- *
- * FXStreet's own RSS works from residential IPs but is blocked from cloud
- * datacenters (Vercel), so we pull FXStreet's content via Google News RSS
- * (`site:fxstreet.com`), which is datacenter-friendly. Items keep FXStreet as
- * the source; links resolve to the original FXStreet articles.
+ * Direct/proxied publisher feeds.
  */
-export async function getFXStreetNews(): Promise<NewsItem[]> {
+const RSS_ACCEPT = { Accept: "application/rss+xml,text/xml,*/*" } as const;
+
+/** Fetch a publisher's own RSS feed directly. Returns [] on block/empty. */
+async function directRss(
+  url: string,
+  source: string,
+  idPrefix: string,
+  limit: number,
+): Promise<NewsItem[]> {
+  try {
+    const res = await fetchWith(url, { headers: RSS_ACCEPT });
+    return parseRss(await res.text(), source, idPrefix, limit);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Pull a publisher's headlines via Google News RSS (`site:<domain>`). Used for
+ * outlets whose own feeds block cloud datacenters (Vercel) — Google News is
+ * datacenter-friendly and links resolve back to the original articles.
+ */
+async function googleNewsSite(
+  domain: string,
+  label: string,
+  idPrefix: string,
+  limit = 8,
+): Promise<NewsItem[]> {
   const url =
     "https://news.google.com/rss/search?q=" +
-    encodeURIComponent("site:fxstreet.com when:3d") +
+    encodeURIComponent(`site:${domain} when:5d`) +
     "&hl=en-US&gl=US&ceid=US:en";
-  const res = await fetchWith(url, { headers: { Accept: "application/rss+xml,text/xml,*/*" } });
+  const res = await fetchWith(url, { headers: RSS_ACCEPT });
   const xml = await res.text();
-  // Google News uses <source> = "FXStreet"; strip a trailing " - FXStreet" suffix.
-  return parseRss(xml, "FXStreet", "fxstreet", 10).map((it) => ({
+  // Google News appends " - <Publisher>" to titles; strip it for our label.
+  const suffix = new RegExp(`\\s*[-|]\\s*${label}\\s*$`, "i");
+  return parseRss(xml, label, idPrefix, limit).map((it) => ({
     ...it,
-    source: "FXStreet",
-    headline: it.headline.replace(/\s*[-|]\s*FXStreet\s*$/i, ""),
+    source: label,
+    headline: it.headline.replace(suffix, ""),
   }));
+}
+
+/** FXStreet (forex/macro) — own feed blocks datacenters, so via Google News. */
+export async function getFXStreetNews(): Promise<NewsItem[]> {
+  return googleNewsSite("fxstreet.com", "FXStreet", "fxstreet", 10);
+}
+
+/** CNBC Markets — a leading general capital-markets newsroom. Direct RSS. */
+export async function getCNBCNews(): Promise<NewsItem[]> {
+  return directRss(
+    "https://www.cnbc.com/id/20910258/device/rss/rss.html",
+    "CNBC",
+    "cnbc",
+    6,
+  );
+}
+
+/**
+ * MarketWatch top stories. Its Akamai-fronted feed serves residential IPs but
+ * may 403 from datacenters, so we try the direct feed first and fall back to
+ * the Google News proxy if it comes back empty/blocked.
+ */
+export async function getMarketWatchNews(): Promise<NewsItem[]> {
+  const direct = await directRss(
+    "https://feeds.marketwatch.com/marketwatch/topstories/",
+    "MarketWatch",
+    "mw",
+    6,
+  );
+  if (direct.length) return direct;
+  return googleNewsSite("marketwatch.com", "MarketWatch", "mw", 6);
+}
+
+/** Cointelegraph (crypto) — direct RSS. */
+export async function getCointelegraphNews(): Promise<NewsItem[]> {
+  return directRss("https://cointelegraph.com/rss", "Cointelegraph", "cointelegraph", 6);
+}
+
+/** Decrypt (crypto) — direct RSS. */
+export async function getDecryptNews(): Promise<NewsItem[]> {
+  return directRss("https://decrypt.co/feed", "Decrypt", "decrypt", 6);
 }
