@@ -37,10 +37,12 @@ function parseRss(xml: string, source: string, idPrefix: string, limit: number):
     const pub = tag(block, "pubDate");
     if (!headline) continue;
     const srcTag = block.match(/<source[^>]*>([\s\S]*?)<\/source>/i);
+    const description = tag(block, "description");
     items.push({
       id: `${idPrefix}-${i}`,
       headline,
       url: link,
+      description: description || undefined,
       source: srcTag ? decode(srcTag[1]) : source,
       publishedAt: pub ? new Date(pub).toISOString() : new Date().toISOString(),
       kind: "news",

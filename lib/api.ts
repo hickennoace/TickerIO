@@ -47,14 +47,34 @@ export const fetchTrendBias = (symbol: string) =>
     `/api/trend-bias?symbol=${encodeURIComponent(symbol)}`,
   );
 
-export interface NewsDigest {
-  text: string;
-  generatedBy: string;
-}
 export const fetchNews = (symbol: string) =>
-  get<{ items: NewsItem[]; sources: string[]; digest: NewsDigest | null; asOf: string }>(
+  get<{ items: NewsItem[]; sources: string[]; asOf: string }>(
     `/api/news?symbol=${encodeURIComponent(symbol)}`,
   );
+
+export interface ArticleSummaryResponse {
+  summary: string;
+  generatedBy: string;
+}
+/** Lazy per-article context summary (POST — the article excerpt can be long). */
+export async function fetchArticleSummary(
+  symbol: string,
+  item: { headline: string; url: string; description?: string },
+): Promise<ArticleSummaryResponse> {
+  const res = await fetch("/api/article-summary", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      symbol,
+      headline: item.headline,
+      url: item.url,
+      description: item.description ?? "",
+    }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error((json as { error?: string }).error ?? `Request failed: ${res.status}`);
+  return json as ArticleSummaryResponse;
+}
 
 export interface AiSummaryResponse {
   summary: string;

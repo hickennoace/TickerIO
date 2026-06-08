@@ -3,20 +3,9 @@ import { cached } from "@/lib/cache";
 import { resolve } from "@/lib/market";
 import { getNews, getCoinDeskNews, getFXStreetNews } from "@/lib/providers/news";
 import { getEconomicCalendar } from "@/lib/providers/calendar";
-import { buildNewsDigest } from "@/lib/news-digest";
 import type { NewsItem } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-
-/** Stable short hash for caching the digest by its input headlines. */
-function hash(s: string): string {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return (h >>> 0).toString(36);
-}
 
 /** Upcoming high-impact Forex Factory events as forward-looking news items. */
 async function forexFactoryEvents(): Promise<NewsItem[]> {
@@ -77,17 +66,8 @@ export async function GET(req: NextRequest) {
     // Forward-looking macro events first, then the freshest articles.
     const items = [...events, ...articles].slice(0, 12);
 
-    // Plain-language digest of the actual article headlines (cached by hash so
-    // identical news never re-triggers the LLM).
-    const headlines = articles.slice(0, 5).map((a) => a.headline);
-    const { value: digest } = await cached(
-      `digest:${r.symbol}:${hash(headlines.join("|"))}`,
-      1800,
-      () => buildNewsDigest(r.display, headlines),
-    ).catch(() => ({ value: null }));
-
     const sources = Array.from(new Set(items.map((i) => i.source)));
-    return NextResponse.json({ items, sources, digest, asOf: new Date().toISOString() });
+    return NextResponse.json({ items, sources, asOf: new Date().toISOString() });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "failed";
     return NextResponse.json({ error: msg, items: [] }, { status: 200 });

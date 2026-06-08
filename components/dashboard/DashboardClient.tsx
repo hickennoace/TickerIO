@@ -126,9 +126,9 @@ export function DashboardClient({ symbol }: { symbol: string }) {
           </Reveal>
           <Reveal delay={0.15}>
             <NewsFeed
+              symbol={symbol}
               items={newsQ.data?.items}
               sources={newsQ.data?.sources}
-              digest={newsQ.data?.digest}
               loading={newsQ.isLoading}
             />
           </Reveal>

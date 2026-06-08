@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { QuoteResponse } from "@/lib/api";
 import {
   fetchAiSummary,
+  fetchArticleSummary,
   fetchCalendar,
   fetchCandles,
   fetchNews,
@@ -15,6 +16,7 @@ import {
   fetchTimeframes,
   fetchTrendBias,
 } from "@/lib/api";
+import type { NewsItem } from "@/lib/types";
 
 /** Debounce any fast-changing value. */
 export function useDebounced<T>(value: T, ms = 200): T {
@@ -131,6 +133,17 @@ export function useProfile(symbol: string) {
     queryKey: ["profile", symbol],
     queryFn: () => fetchProfile(symbol),
     // Descriptions are near-static; keep them fresh for an hour, retry once.
+    staleTime: 3_600_000,
+    retry: 1,
+  });
+}
+
+/** Lazily summarize one article's context — fires only once expanded. */
+export function useArticleSummary(symbol: string, item: NewsItem, enabled: boolean) {
+  return useQuery({
+    queryKey: ["article-summary", item.id],
+    queryFn: () => fetchArticleSummary(symbol, item),
+    enabled,
     staleTime: 3_600_000,
     retry: 1,
   });

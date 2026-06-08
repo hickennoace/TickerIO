@@ -61,6 +61,8 @@ export interface NewsItem {
   source: string;
   headline: string;
   url: string;
+  /** Short article excerpt from the feed — the lead/context behind the headline. */
+  description?: string;
   publishedAt: string;
   /** "news" = a published article; "event" = an upcoming macro calendar event. */
   kind?: "news" | "event";
