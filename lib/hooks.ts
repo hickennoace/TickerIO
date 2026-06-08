@@ -8,6 +8,7 @@ import {
   fetchCalendar,
   fetchCandles,
   fetchNews,
+  fetchProfile,
   fetchQuote,
   fetchSearch,
   fetchSentiment,
@@ -123,6 +124,16 @@ export function useNews(symbol: string) {
 
 export function useAiSummary(symbol: string) {
   return useQuery({ queryKey: ["ai-summary", symbol], queryFn: () => fetchAiSummary(symbol) });
+}
+
+export function useProfile(symbol: string) {
+  return useQuery({
+    queryKey: ["profile", symbol],
+    queryFn: () => fetchProfile(symbol),
+    // Descriptions are near-static; keep them fresh for an hour, retry once.
+    staleTime: 3_600_000,
+    retry: 1,
+  });
 }
 
 export function useCalendar() {

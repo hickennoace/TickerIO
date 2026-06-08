@@ -6,7 +6,8 @@
 import { cached } from "@/lib/cache";
 import { resolveSymbol, type ResolvedSymbol } from "@/lib/markets/symbol";
 import { getQuote, getCandles } from "@/lib/providers/yahoo";
-import type { Candle, Quote } from "@/lib/types";
+import { getProfile } from "@/lib/providers/profile";
+import type { AssetProfile, Candle, Quote } from "@/lib/types";
 
 export function resolve(input: string): ResolvedSymbol {
   return resolveSymbol(input);
@@ -15,6 +16,21 @@ export function resolve(input: string): ResolvedSymbol {
 export async function quote(input: string): Promise<{ value: Quote; stale: boolean }> {
   const r = resolve(input);
   const { value, stale } = await cached(`quote:${r.symbol}`, 6, () => getQuote(r));
+  return { value, stale };
+}
+
+export async function profile(
+  input: string,
+): Promise<{ value: AssetProfile; stale: boolean }> {
+  const r = resolve(input);
+  // Profiles barely change → cache a day. The display name comes from the
+  // (cheap, already-cached) quote so Wikipedia fallbacks resolve the right page.
+  const { value, stale } = await cached(`profile:${r.symbol}`, 86_400, async () => {
+    const name = await getQuote(r)
+      .then((q) => q.name)
+      .catch(() => r.display);
+    return getProfile(r, name);
+  });
   return { value, stale };
 }
 

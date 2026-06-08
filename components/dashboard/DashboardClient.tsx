@@ -15,6 +15,7 @@ import {
   useCalendar,
   useCandles,
   useNews,
+  useProfile,
   useQuote,
   useSentiment,
   useTimeframes,
@@ -31,6 +32,7 @@ import { TimeframePanel } from "@/components/widgets/TimeframePanel";
 import { FearGreedGauge } from "@/components/widgets/FearGreedGauge";
 import { TrendBiasIndicator } from "@/components/widgets/TrendBiasIndicator";
 import { AiSummaryCard } from "@/components/widgets/AiSummaryCard";
+import { AssetProfileCard } from "@/components/widgets/AssetProfile";
 import { NewsFeed } from "@/components/widgets/NewsFeed";
 import { EconomicCalendar } from "@/components/widgets/EconomicCalendar";
 import { KeyStats } from "@/components/widgets/KeyStats";
@@ -44,6 +46,7 @@ export function DashboardClient({ symbol }: { symbol: string }) {
   const biasQ = useTrendBias(symbol);
   const newsQ = useNews(symbol);
   const aiQ = useAiSummary(symbol);
+  const profileQ = useProfile(symbol);
   const calQ = useCalendar();
 
   // Live price ticks via SSE → patches the quote cache in place.
@@ -114,6 +117,9 @@ export function DashboardClient({ symbol }: { symbol: string }) {
             ) : (
               <Skeleton className="h-[620px] w-full rounded-2xl" />
             )}
+          </Reveal>
+          <Reveal delay={0.08}>
+            <AssetProfileCard data={profileQ.data} display={quote?.display ?? symbol} loading={profileQ.isLoading} />
           </Reveal>
           <Reveal delay={0.1}>
             <AiSummaryCard data={aiQ.data} loading={aiQ.isLoading} />

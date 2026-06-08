@@ -1,6 +1,7 @@
 /** Typed client-side fetchers for the internal API routes. */
 
 import type {
+  AssetProfile,
   Candle,
   CalendarEvent,
   NewsItem,
@@ -64,6 +65,10 @@ export interface AiSummaryResponse {
 }
 export const fetchAiSummary = (symbol: string) =>
   get<AiSummaryResponse>(`/api/ai-summary?symbol=${encodeURIComponent(symbol)}`);
+
+export type AssetProfileResponse = AssetProfile & { stale?: boolean };
+export const fetchProfile = (symbol: string) =>
+  get<AssetProfileResponse>(`/api/profile?symbol=${encodeURIComponent(symbol)}`);
 
 export const fetchCalendar = () =>
   get<{ events: CalendarEvent[]; source: string; asOf: string }>(`/api/calendar`);

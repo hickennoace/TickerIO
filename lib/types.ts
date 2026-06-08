@@ -95,6 +95,25 @@ export interface CalendarEvent {
   previous: string;
 }
 
+/** Plain-language "about" for a symbol: what it is, what it does, its products. */
+export interface AssetProfile {
+  symbol: string;
+  display: string;
+  name: string;
+  assetClass: AssetClass;
+  /** Factual overview of the asset and (for companies) its flagship products. */
+  summary: string;
+  sector?: string;
+  industry?: string;
+  website?: string;
+  /** "Read more" link — official site or the source Wikipedia article. */
+  url?: string;
+  employees?: number;
+  country?: string;
+  source: string;
+  asOf: string;
+}
+
 export interface ApiError {
   error: string;
 }
