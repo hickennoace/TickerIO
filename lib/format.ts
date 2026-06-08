@@ -6,12 +6,22 @@
 
 export function formatPrice(value: number, currency = "USD"): string {
   const fractionDigits = value >= 1000 ? 2 : value >= 1 ? 2 : 4;
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  }).format(value);
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits,
+    }).format(value);
+  } catch {
+    // Some Yahoo symbols report non-ISO units (e.g. "USX" cents for grain
+    // futures). Intl rejects those — fall back to a plain number + the raw code.
+    const n = new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits,
+    }).format(value);
+    return `${n} ${currency}`;
+  }
 }
 
 export function formatPercent(value: number): string {

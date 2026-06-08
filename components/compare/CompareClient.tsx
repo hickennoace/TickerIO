@@ -3,16 +3,25 @@
 import { useQueries } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { Plus, X } from "lucide-react";
+import { X } from "lucide-react";
 import Link from "next/link";
 import { fetchCandles, fetchQuote, fetchTimeframes } from "@/lib/api";
 import { formatPrice, formatPercent, direction } from "@/lib/format";
+import { SymbolAutocomplete } from "@/components/SymbolAutocomplete";
 import { CompareChart, type CompareSeries } from "./CompareChart";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 const PALETTE = ["#4f8cff", "#16c784", "#f0b90b", "#ea3943", "#7c5cff", "#22d3ee"];
 const DEFAULTS = ["AAPL", "MSFT", "NVDA"];
 const MAX = 6;
+
+const PERIODS: { key: string; label: string; range: string }[] = [
+  { key: "1M", label: "1M", range: "1mo" },
+  { key: "3M", label: "3M", range: "3mo" },
+  { key: "6M", label: "6M", range: "6mo" },
+  { key: "YTD", label: "YTD", range: "ytd" },
+  { key: "1Y", label: "1Y", range: "1y" },
+];
 
 function parseSymbols(raw: string | null): string[] {
   if (!raw) return DEFAULTS;
@@ -27,10 +36,11 @@ export function CompareClient() {
   const router = useRouter();
   const params = useSearchParams();
   const symbols = useMemo(() => parseSymbols(params.get("symbols")), [params]);
-  const [input, setInput] = useState("");
+  const [period, setPeriod] = useState("1Y");
+  const range = PERIODS.find((p) => p.key === period)?.range ?? "1y";
 
   function setSymbols(next: string[]) {
-    const unique = Array.from(new Set(next)).slice(0, MAX);
+    const unique = Array.from(new Set(next.map((s) => s.toUpperCase()))).slice(0, MAX);
     router.replace(unique.length ? `/compare?symbols=${unique.join(",")}` : "/compare");
   }
 
@@ -42,8 +52,8 @@ export function CompareClient() {
   });
   const candleResults = useQueries({
     queries: symbols.map((s) => ({
-      queryKey: ["candles", s, "1y", "1d"],
-      queryFn: () => fetchCandles(s, "1y", "1d"),
+      queryKey: ["candles", s, range, "1d"],
+      queryFn: () => fetchCandles(s, range, "1d"),
     })),
   });
 
@@ -60,53 +70,76 @@ export function CompareClient() {
 
   return (
     <main className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Compare</h1>
-          <p className="text-sm text-[var(--fg-muted)]">Normalized performance, rebased to the period start.</p>
-        </div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const v = input.trim().toUpperCase();
-            if (v) setSymbols([...symbols, v]);
-            setInput("");
-          }}
-          className="flex items-center gap-2"
-        >
-          <div className="relative">
-            <Plus size={15} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2" style={{ color: "var(--fg-dim)" }} />
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Add symbol"
-              spellCheck={false}
-              disabled={symbols.length >= MAX}
-              className="w-40 rounded-lg border bg-[var(--panel)] py-2 pl-8 pr-3 text-sm outline-none focus:border-[var(--accent)] disabled:opacity-50"
-            />
-          </div>
-        </form>
+      <div className="mb-5">
+        <h1 className="font-display text-2xl font-bold tracking-tight">Compare</h1>
+        <p className="text-sm text-[var(--fg-muted)]">Normalized performance, rebased to the period start.</p>
       </div>
 
-      {/* Active symbol chips */}
-      <div className="mb-4 flex flex-wrap gap-2">
-        {symbols.map((s, i) => (
-          <span
-            key={s}
-            className="inline-flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-sm font-semibold"
-            style={{ borderColor: "var(--border)" }}
-          >
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: PALETTE[i % PALETTE.length] }} />
-            {s}
-            <button onClick={() => setSymbols(symbols.filter((x) => x !== s))} aria-label={`Remove ${s}`}>
-              <X size={14} style={{ color: "var(--fg-dim)" }} />
-            </button>
+      {/* Controls: add box (with autocomplete) + active chips */}
+      <div className="mb-4 flex flex-col gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <SymbolAutocomplete
+            onSelect={(s) => setSymbols([...symbols, s])}
+            disabled={symbols.length >= MAX}
+            placeholder={symbols.length >= MAX ? `Max ${MAX} symbols` : "Add symbol — AAPL, BTC, GC=F…"}
+            className="w-full sm:w-72"
+          />
+          <span className="text-xs" style={{ color: "var(--fg-dim)" }}>
+            {symbols.length}/{MAX} symbols
           </span>
-        ))}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {symbols.map((s, i) => (
+            <span
+              key={s}
+              className="inline-flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-sm font-semibold"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: PALETTE[i % PALETTE.length] }} />
+              {s}
+              <button onClick={() => setSymbols(symbols.filter((x) => x !== s))} aria-label={`Remove ${s}`}>
+                <X size={14} style={{ color: "var(--fg-dim)" }} />
+              </button>
+            </span>
+          ))}
+          {symbols.length === 0 && (
+            <button
+              onClick={() => setSymbols(DEFAULTS)}
+              className="rounded-lg border px-2.5 py-1.5 text-sm font-medium text-[var(--fg-muted)] transition-colors hover:text-[var(--fg)]"
+              style={{ borderColor: "var(--border)" }}
+            >
+              Load example set
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Overlay chart */}
       <section className="panel p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--fg-muted)]">
+            Normalized overlay
+          </h2>
+          <div className="inline-flex gap-1 rounded-lg border border-[var(--border)] p-0.5">
+            {PERIODS.map((p) => {
+              const on = p.key === period;
+              return (
+                <button
+                  key={p.key}
+                  onClick={() => setPeriod(p.key)}
+                  className="rounded-md px-2.5 py-1 text-xs font-semibold transition-colors"
+                  style={{
+                    background: on ? "var(--accent)" : "transparent",
+                    color: on ? "#fff" : "var(--fg-muted)",
+                  }}
+                >
+                  {p.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         {candleResults.some((r) => r.isLoading) && series.length === 0 ? (
           <Skeleton className="h-[320px] w-full" />
         ) : (
@@ -173,7 +206,7 @@ export function CompareClient() {
       </section>
 
       <p className="mt-6 text-center text-xs" style={{ color: "var(--fg-dim)" }}>
-        Overlay rebased to each series&apos; first close over ~1Y · Yahoo Finance · not financial advice.
+        Overlay rebased to each series&apos; first close over {period} · Yahoo Finance · not financial advice.
       </p>
     </main>
   );

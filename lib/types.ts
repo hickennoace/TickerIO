@@ -26,6 +26,18 @@ export interface Quote {
   source: string;
 }
 
+/** Compact quote for ranking boards (Leaders / batch fetch). */
+export interface MiniQuote {
+  symbol: string;
+  display: string;
+  name: string;
+  assetClass: AssetClass;
+  currency: string;
+  price: number;
+  changePct: number;
+  change: number;
+}
+
 export interface Candle {
   /** Epoch milliseconds. */
   t: number;

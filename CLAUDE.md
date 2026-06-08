@@ -342,6 +342,31 @@ Build in phases. **Do not start a phase until the previous one is green.** Each 
 - [x] **Light theme** ("Daylight Terminal") — `[data-theme="light"]` palette, no-FOUC inline script, header toggle.
 - ✅ *Done:* prices stream live; watchlist + alerts + reorderable, theme-able dashboard.
 
+### Phase 10 — Market Discovery & Leaders 🧭 (in progress)
+**Goal: stop making the user *know* the ticker first.** Turn TickerIO from a "look up one symbol" tool into a "what's moving right now" cockpit. Discovery feeds the existing per-symbol dashboard.
+
+- [x] **Leaders board** (`/markets`) — three tabs (Sectors · Crypto · Commodities), ranked by today's anchored % move, every row deep-links to the dashboard. Added to header nav.
+- [x] **Sector heatmap + drilldown** — 11 GICS sectors headlined by their SPDR Select Sector ETF (`XLK`/`XLF`/…), tinted green→red by move, sortable strongest-first; click a sector → its bellwether constituents ranked as that sector's leaders.
+- [x] **Leading coins** — top ~24 cryptocurrencies (`-USD` pairs) ranked by 24h move.
+- [x] **Top commodities** — metals / energy / agriculture via Yahoo continuous futures (`GC=F`, `CL=F`, `ZW=F`, …). (Note: "Materials" exists twice on purpose — the GICS *Materials* equity sector **and** a dedicated *Commodities* tab for the raw goods themselves.)
+- [x] **Batch-quote infra** — `lib/markets/leaders.ts` curated universes + `/api/batch-quotes?symbols=…` fan-out over the cached per-symbol `quote()` service (no Yahoo crumb needed); `useBatchQuotes` hook.
+- [x] **Compare, easier** — reusable `SymbolAutocomplete` (Yahoo search, keyboard-nav dropdown) replaces the plain add-symbol input; overlay period selector (1M/3M/6M/YTD/1Y); chip count + "load example set".
+- [ ] **Movers of the day** — biggest gainers/losers across the whole curated universe (one cross-sector leaderboard) on `/markets` + a landing-page strip.
+- [ ] **52-week high/low & near-breakout scans** — surface names pressing their range extremes (data already in the quote: `fiftyTwoWeekHigh/Low`).
+- [ ] **Crypto market context** — total market cap + BTC dominance rail (CoinGecko, the long-tail "crypto jungle"); deferred coingecko provider from Phase 1.
+- [ ] **Per-row sparklines** on the boards (reuse `Sparkline`; needs a cached mini-candle batch or a `range`-aware batch endpoint).
+- 🔶 *Status:* Leaders board, sector drilldown, crypto/commodity rankings, and the Compare autocomplete are live; movers/breakout scans and crypto-cap context remain.
+
+### Phase 11 — Pro Analytics & Alpha (planned) 📈
+Ideas backlog — sequence after Phase 10 lands:
+- **Correlation matrix** in Compare (rolling correlation heatmap across the selected symbols).
+- **Relative-strength ranking** (RS line vs. SPY/BTC) per symbol; "leaders vs. the benchmark."
+- **Earnings & catalyst calendar** per symbol (next report date, expected move) wired into the dashboard + an `/earnings` board.
+- **Custom screeners** — filter the universe by % move / 52w position / sector; save as shareable URLs.
+- **Multi-symbol watchlist groups** + CSV/PNG export of any board or compare view.
+- **Portfolio mode** — paste holdings, get a weighted performance + exposure read (sector/asset-class breakdown).
+- **Server cache hardening** — Upstash Redis + Vercel Cron prefetch of the Leaders universe so boards are always warm (closes the open Phase 6 item).
+
 ---
 
 ## 7. Coding Guidelines (apply on every change)

@@ -4,6 +4,7 @@ import type {
   AssetProfile,
   Candle,
   CalendarEvent,
+  MiniQuote,
   NewsItem,
   Quote,
   TimeframeRow,
@@ -21,6 +22,15 @@ export type QuoteResponse = Quote & { stale?: boolean };
 
 export const fetchQuote = (symbol: string) =>
   get<QuoteResponse>(`/api/quote?symbol=${encodeURIComponent(symbol)}`);
+
+export interface BatchQuotesResponse {
+  quotes: MiniQuote[];
+  stale?: boolean;
+  asOf?: string;
+}
+/** Fetch many lightweight quotes at once — powers the Leaders board. */
+export const fetchBatchQuotes = (symbols: string[]) =>
+  get<BatchQuotesResponse>(`/api/batch-quotes?symbols=${encodeURIComponent(symbols.join(","))}`);
 
 export const fetchCandles = (symbol: string, range = "1d", interval = "5m") =>
   get<{ candles: Candle[]; interval: string; source: string; asOf: string }>(

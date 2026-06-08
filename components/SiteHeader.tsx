@@ -35,6 +35,9 @@ export function SiteHeader({ showSearch = true }: { showSearch?: boolean }) {
             <Link href="/" className="transition-colors hover:text-[var(--fg)]">
               Markets
             </Link>
+            <Link href="/markets" className="transition-colors hover:text-[var(--fg)]">
+              Leaders
+            </Link>
             <Link href="/watchlist" className="transition-colors hover:text-[var(--fg)]">
               Watchlist
             </Link>

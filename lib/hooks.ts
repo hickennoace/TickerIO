@@ -6,6 +6,7 @@ import type { QuoteResponse } from "@/lib/api";
 import {
   fetchAiSummary,
   fetchArticleSummary,
+  fetchBatchQuotes,
   fetchCalendar,
   fetchCandles,
   fetchNews,
@@ -90,6 +91,21 @@ export function usePriceStream(symbol: string, enabled = true) {
     // EventSource auto-reconnects on error; nothing to do here.
     return () => es.close();
   }, [symbol, enabled, qc]);
+}
+
+/**
+ * Batch quotes for a group of symbols (Leaders board). `key` namespaces the
+ * cache so the Sectors/Crypto/Commodities tabs don't collide. Refetches on a
+ * relaxed cadence — discovery boards don't need tick-level freshness.
+ */
+export function useBatchQuotes(key: string, symbols: string[], enabled = true) {
+  return useQuery({
+    queryKey: ["batch-quotes", key],
+    queryFn: () => fetchBatchQuotes(symbols),
+    enabled: enabled && symbols.length > 0,
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
 }
 
 export function useCandles(symbol: string, range = "1d", interval = "5m") {
