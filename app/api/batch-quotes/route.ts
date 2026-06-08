@@ -10,7 +10,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { quote } from "@/lib/market";
-import { COMMODITY_NAMES } from "@/lib/markets/leaders";
+import { COMMODITY_NAMES, CRYPTO_OVERRIDES } from "@/lib/markets/leaders";
 import type { MiniQuote } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -38,10 +38,15 @@ export async function GET(req: NextRequest) {
     if (res.status !== "fulfilled") return;
     const { value: q, stale } = res.value;
     if (stale) anyStale = true;
+    const input = symbols[i];
+    const cryptoOverride = CRYPTO_OVERRIDES[input];
+    // Yahoo names coins "Bitcoin USD", "Solana USD", … — drop the unit suffix.
+    const cleanName =
+      q.assetClass === "crypto" ? q.name.replace(/\s+USD$/i, "") : q.name;
     quotes.push({
       symbol: q.symbol,
-      display: q.display,
-      name: COMMODITY_NAMES[symbols[i]] ?? q.name,
+      display: cryptoOverride?.display ?? q.display,
+      name: COMMODITY_NAMES[input] ?? cryptoOverride?.name ?? cleanName,
       assetClass: q.assetClass,
       currency: q.currency,
       price: q.price,

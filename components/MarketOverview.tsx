@@ -34,8 +34,7 @@ export function MarketOverview() {
         className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
         variants={staggerContainer(0.06)}
         initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, margin: "-80px" }}
+        animate="show"
       >
         {BELLWETHERS.map((b) => (
           <motion.div key={b.symbol} variants={fadeUp}>

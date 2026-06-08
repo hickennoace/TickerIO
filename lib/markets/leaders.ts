@@ -89,15 +89,27 @@ export const SECTORS: SectorDef[] = [
 ];
 
 /**
- * Leading cryptocurrencies (Yahoo `-USD` pairs, explicit so we bypass any gaps
- * in the symbol resolver's crypto set). Ordered by typical market cap.
+ * The most famous cryptocurrencies — the household-name coins, not the long
+ * tail. Yahoo `-USD` pairs, explicit so we bypass any gaps in the symbol
+ * resolver. Ordered by recognition / market cap. Stablecoins are excluded (a
+ * leaderboard of things pinned to $1 is pointless).
  */
 export const CRYPTO_LEADERS: string[] = [
-  "BTC-USD", "ETH-USD", "BNB-USD", "SOL-USD", "XRP-USD", "ADA-USD", "DOGE-USD",
-  "TRX-USD", "AVAX-USD", "LINK-USD", "DOT-USD", "MATIC-USD", "LTC-USD", "BCH-USD",
-  "NEAR-USD", "UNI7083-USD", "ICP-USD", "ETC-USD", "XLM-USD", "ATOM-USD",
-  "FIL-USD", "APT-USD", "ARB-USD", "OP-USD",
+  "BTC-USD", "ETH-USD", "BNB-USD", "SOL-USD", "XRP-USD", "DOGE-USD",
+  "ADA-USD", "TRX-USD", "AVAX-USD", "LINK-USD", "DOT-USD", "MATIC-USD",
+  "LTC-USD", "BCH-USD", "SHIB-USD", "XLM-USD", "ATOM-USD", "NEAR-USD",
+  "UNI7083-USD", "PEPE24478-USD",
 ];
+
+/**
+ * Yahoo disambiguates some coins with numeric suffixes (UNI → UNI7083, PEPE →
+ * PEPE24478) because the bare ticker collides with an equity. Present them
+ * cleanly anyway.
+ */
+export const CRYPTO_OVERRIDES: Record<string, { display: string; name: string }> = {
+  "UNI7083-USD": { display: "UNI", name: "Uniswap" },
+  "PEPE24478-USD": { display: "PEPE", name: "Pepe" },
+};
 
 export interface CommodityDef {
   /** Yahoo futures symbol (continuous front month), e.g. "GC=F". */

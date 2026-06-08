@@ -347,10 +347,12 @@ Build in phases. **Do not start a phase until the previous one is green.** Each 
 
 - [x] **Leaders board** (`/markets`) — three tabs (Sectors · Crypto · Commodities), ranked by today's anchored % move, every row deep-links to the dashboard. Added to header nav.
 - [x] **Sector heatmap + drilldown** — 11 GICS sectors headlined by their SPDR Select Sector ETF (`XLK`/`XLF`/…), tinted green→red by move, sortable strongest-first; click a sector → its bellwether constituents ranked as that sector's leaders.
-- [x] **Leading coins** — top ~24 cryptocurrencies (`-USD` pairs) ranked by 24h move.
+- [x] **Leading coins** — the **most famous** cryptocurrencies (~20 household-name `-USD` pairs, no stablecoins) ranked by 24h move; Yahoo's noisy names cleaned ("Bitcoin USD"→"Bitcoin") and disambiguated symbols presented properly (`UNI7083`→UNI, `PEPE24478`→PEPE) via `CRYPTO_OVERRIDES`.
 - [x] **Top commodities** — metals / energy / agriculture via Yahoo continuous futures (`GC=F`, `CL=F`, `ZW=F`, …). (Note: "Materials" exists twice on purpose — the GICS *Materials* equity sector **and** a dedicated *Commodities* tab for the raw goods themselves.)
 - [x] **Batch-quote infra** — `lib/markets/leaders.ts` curated universes + `/api/batch-quotes?symbols=…` fan-out over the cached per-symbol `quote()` service (no Yahoo crumb needed); `useBatchQuotes` hook.
 - [x] **Compare, easier** — reusable `SymbolAutocomplete` (Yahoo search, keyboard-nav dropdown) replaces the plain add-symbol input; overlay period selector (1M/3M/6M/YTD/1Y); chip count + "load example set".
+- [x] **Landing quick-access launchers** — `components/landing/QuickAccess.tsx` cards jump straight to Leaders / Watchlist / Compare without typing a ticker; landing hero/features split into animated `landing/` components.
+- [x] **Motion System v2** — shared `lib/motion.ts` vocabulary; route transitions (`app/template.tsx`); animated tab pills (shared `layoutId`), staggered/reflowing sector tiles, growing rank bars, count-ups, animated dropdowns, compare-chip + theme-toggle micro-interactions. All transform/opacity-only and `useReducedMotion`-gated. Spec: `docs/superpowers/specs/2026-06-08-motion-system-v2-design.md`.
 - [ ] **Movers of the day** — biggest gainers/losers across the whole curated universe (one cross-sector leaderboard) on `/markets` + a landing-page strip.
 - [ ] **52-week high/low & near-breakout scans** — surface names pressing their range extremes (data already in the quote: `fiftyTwoWeekHigh/Low`).
 - [ ] **Crypto market context** — total market cap + BTC dominance rail (CoinGecko, the long-tail "crypto jungle"); deferred coingecko provider from Phase 1.
