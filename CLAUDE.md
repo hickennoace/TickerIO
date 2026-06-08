@@ -56,7 +56,7 @@ Chosen specifically to be **first-class on Vercel's serverless/edge platform** a
 | **Server caching** | **Vercel Runtime Cache / Upstash Redis** (Marketplace) | Cache news/AI/quote responses to respect rate limits & cost. |
 | **Deployment** | **Vercel** | Functions, Edge, Cron Jobs, env management, preview deploys. |
 
-> **Provider note:** When integrating the LLM, consult the latest model IDs/pricing before hardcoding anything. Default to a current, capable model (e.g., Claude Opus/Sonnet class) and route through the **Vercel AI SDK** so providers are swappable.
+> **Provider note (current):** AI summary + news recap use a provider chain in `lib/ai/llm.ts` — **Gemini `gemini-2.5-flash`** (primary, `GEMINI_API_KEY`, thinking disabled) → **Groq** (`GROQ_API_KEY`) → deterministic heuristic. Keys are server-side only (`.env.local` locally, Vercel encrypted env in prod); never committed. Swap models/providers in `lib/ai/`.
 
 ### 2.1 Trusted Data Sources (reliability is the product)
 

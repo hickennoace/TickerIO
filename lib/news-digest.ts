@@ -5,7 +5,7 @@
  * readable digest. Server-only; cached by the hash of the headlines.
  */
 
-import { fetchJson } from "@/lib/cache";
+import { llmText } from "@/lib/ai/llm";
 
 export interface NewsDigest {
   text: string;
@@ -32,35 +32,13 @@ function recap(display: string, headlines: string[]): NewsDigest {
   return { text, generatedBy: "headline recap" };
 }
 
-async function withGroq(display: string, headlines: string[]): Promise<string | null> {
-  const key = process.env.GROQ_API_KEY;
-  if (!key || headlines.length === 0) return null;
+export async function buildNewsDigest(display: string, headlines: string[]): Promise<NewsDigest> {
+  if (headlines.length === 0) return recap(display, headlines);
   const prompt =
     `Summarize the following recent ${display} news headlines into a short, factual recap ` +
     `of 2-3 sentences for a general reader. Describe what is actually being reported — ` +
     `NO buy/sell signals, NO sentiment labels, NO advice, no preamble. ` +
     `Headlines:\n- ${headlines.slice(0, 5).join("\n- ")}`;
-  try {
-    const data = await fetchJson<{ choices: { message: { content: string } }[] }>(
-      "https://api.groq.com/openai/v1/chat/completions",
-      {
-        method: "POST",
-        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.3,
-          max_tokens: 160,
-        }),
-      },
-    );
-    return data.choices?.[0]?.message?.content?.trim() ?? null;
-  } catch {
-    return null;
-  }
-}
-
-export async function buildNewsDigest(display: string, headlines: string[]): Promise<NewsDigest> {
-  const llm = await withGroq(display, headlines);
-  return llm ? { text: llm, generatedBy: "groq:llama-3.3-70b" } : recap(display, headlines);
+  const llm = await llmText(prompt, 200);
+  return llm ? { text: llm.text, generatedBy: llm.by } : recap(display, headlines);
 }

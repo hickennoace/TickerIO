@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dailyCandles, quote } from "@/lib/market";
-import { cached, fetchJson } from "@/lib/cache";
+import { cached } from "@/lib/cache";
+import { llmText } from "@/lib/ai/llm";
 import { computeTimeframes } from "@/lib/finance/periods";
 import { computeFearGreed, fgLabel } from "@/lib/finance/fear-greed";
 import { technicalScore, computeTrendBias } from "@/lib/finance/trend-bias";
@@ -88,33 +89,14 @@ function heuristic(c: Context): string {
   );
 }
 
-async function withGroq(c: Context): Promise<string | null> {
-  const key = process.env.GROQ_API_KEY;
-  if (!key) return null;
-  const prompt =
+function prompt(c: Context): string {
+  return (
     `You are a sell-side desk analyst. In 2-3 tight sentences, give the bottom-line read for ${c.display}. ` +
     `Data: price ${c.price} ${c.currency}; day ${c.dayPct.toFixed(2)}%, week ${c.weekPct.toFixed(
       2,
     )}%, YTD ${c.ytdPct.toFixed(2)}%; Fear&Greed ${c.fg} (${c.fgLabel}); trend bias ${c.bias} (${c.biasLean}). ` +
-    `Headlines: ${c.headlines.join(" | ") || "none"}. No disclaimers, no preamble.`;
-  try {
-    const data = await fetchJson<{ choices: { message: { content: string } }[] }>(
-      "https://api.groq.com/openai/v1/chat/completions",
-      {
-        method: "POST",
-        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.4,
-          max_tokens: 200,
-        }),
-      },
-    );
-    return data.choices?.[0]?.message?.content?.trim() ?? null;
-  } catch {
-    return null;
-  }
+    `Headlines: ${c.headlines.join(" | ") || "none"}. No disclaimers, no preamble.`
+  );
 }
 
 export async function GET(req: NextRequest) {
@@ -123,11 +105,11 @@ export async function GET(req: NextRequest) {
 
   try {
     const ctx = await buildContext(symbol);
-    const llm = await withGroq(ctx);
+    const llm = await llmText(prompt(ctx), 200);
     return NextResponse.json({
-      summary: llm ?? heuristic(ctx),
+      summary: llm?.text ?? heuristic(ctx),
       sentiment: ctx.biasLean,
-      generatedBy: llm ? "groq:llama-3.3-70b" : "heuristic",
+      generatedBy: llm ? llm.by : "heuristic",
       disclaimer: "AI-generated analysis, not financial advice.",
       asOf: new Date().toISOString(),
     });
