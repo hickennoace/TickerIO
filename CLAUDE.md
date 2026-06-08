@@ -69,7 +69,7 @@ TickerIO's credibility depends entirely on where its numbers come from. We aggre
 | **Crypto — sentiment** | **Alternative.me Crypto Fear & Greed Index** (`api.alternative.me/fng`) | Internal composite (§5.1) | Industry-standard crypto F&G, free, daily. |
 | **Forex — rates, OHLCV** | **Yahoo Finance** (`EURUSD=X`, …) | exchangerate.host | Major + minor pairs. |
 | **Macro / economic calendar** | **Forex Factory** weekly calendar (via `nfs.faireconomy.media` JSON feed) | TradingEconomics (if keyed) | High-impact events, actual/forecast/previous — drives the "event risk" rail. |
-| **News & headlines** | **Yahoo Finance** per-symbol RSS + **CoinDesk** RSS (crypto) | **Forex Factory** events (calendar feed) | Aggregated, deduped, source-attributed. Forex Factory blocks news scraping (403/Cloudflare), so its accessible **calendar** feed surfaces in the news panel as upcoming high-impact *event* items. |
+| **News & headlines** | **Yahoo Finance** per-symbol RSS + **CoinDesk** RSS (crypto) + **FXStreet** RSS (forex) | **Forex Factory** events (calendar feed) | Aggregated, deduped, source-attributed. Forex Factory blocks news scraping (403/Cloudflare), so its accessible **calendar** feed surfaces in the news panel as upcoming high-impact *event* items. |
 | **Charting** | **TradingView** — free **Advanced Real-Time Chart** embed widget now; upgrade to the licensed **Advanced Charting Library** when access is granted | — | The free embed already gives intervals, drawing tools, and indicators (Phase 2). |
 
 **Source rules:**

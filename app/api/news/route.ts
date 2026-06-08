@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cached } from "@/lib/cache";
 import { resolve } from "@/lib/market";
-import { getNews, getCoinDeskNews } from "@/lib/providers/news";
+import { getNews, getCoinDeskNews, getFXStreetNews } from "@/lib/providers/news";
 import { getEconomicCalendar } from "@/lib/providers/calendar";
 import type { NewsItem } from "@/lib/types";
 
@@ -52,6 +52,9 @@ export async function GET(req: NextRequest) {
     ];
     if (r.assetClass === "crypto") {
       tasks.push(cached("news:coindesk", 600, getCoinDeskNews).then((x) => x.value).catch(() => []));
+    }
+    if (r.assetClass === "forex") {
+      tasks.push(cached("news:fxstreet", 600, getFXStreetNews).then((x) => x.value).catch(() => []));
     }
 
     const [events, ...newsGroups] = await Promise.all([forexFactoryEvents(), ...tasks]);

@@ -22,6 +22,7 @@ function impactColor(impact?: NewsItem["impact"]): string {
 function sourceTint(source: string): string {
   if (source === "CoinDesk") return "#f7931a";
   if (source === "Forex Factory") return "var(--warn)";
+  if (source === "FXStreet") return "#e0457b";
   return "var(--accent)";
 }
 

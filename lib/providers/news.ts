@@ -66,3 +66,12 @@ export async function getCoinDeskNews(): Promise<NewsItem[]> {
   const xml = await res.text();
   return parseRss(xml, "CoinDesk", "coindesk", 10);
 }
+
+/** FXStreet headlines — a leading dedicated forex/macro news source. */
+export async function getFXStreetNews(): Promise<NewsItem[]> {
+  const res = await fetchWith("https://www.fxstreet.com/rss/news", {
+    headers: { Accept: "application/rss+xml,text/xml,*/*" },
+  });
+  const xml = await res.text();
+  return parseRss(xml, "FXStreet", "fxstreet", 10);
+}
