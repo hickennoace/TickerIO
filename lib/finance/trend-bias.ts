@@ -28,9 +28,9 @@ export function technicalScore(candles: Candle[]): number {
   score += ma20 > ma50 ? 15 : -15; // short above mid = uptrend
   score += ma50 > ma200 ? 15 : -15; // golden/death cross bias
 
-  // 20-day rate of change.
+  // 20-day rate of change (guarded: a zero/invalid base must not blow the score to ±30).
   const past = closes[closes.length - 21] ?? closes[0];
-  const roc = ((price - past) / past) * 100;
+  const roc = past > 0 ? ((price - past) / past) * 100 : 0;
   score += clamp(roc * 2, -30, 30);
 
   return Math.round(clamp(score));

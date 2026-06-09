@@ -14,6 +14,11 @@ interface Entry<T> {
 
 const store = new Map<string, Entry<unknown>>();
 
+// Single-flight: concurrent callers of the same expired key share ONE loader run instead of each
+// hitting the provider. Matters most for /api/batch-quotes fanning out 50+ symbols while several
+// boards mount at once — without this, every simultaneous caller fired its own upstream request.
+const inflight = new Map<string, Promise<{ value: unknown; stale: boolean; storedAt: number }>>();
+
 export async function cached<T>(
   key: string,
   ttlSeconds: number,
@@ -26,17 +31,27 @@ export async function cached<T>(
     return { value: hit.value, stale: false, storedAt: hit.storedAt };
   }
 
-  try {
-    const value = await loader();
-    store.set(key, { value, expires: now + ttlSeconds * 1000, storedAt: now });
-    return { value, stale: false, storedAt: now };
-  } catch (err) {
-    // Serve last-good data rather than blanking the widget.
-    if (hit) {
-      return { value: hit.value, stale: true, storedAt: hit.storedAt };
+  const existing = inflight.get(key);
+  if (existing) return existing as Promise<{ value: T; stale: boolean; storedAt: number }>;
+
+  const run = (async () => {
+    try {
+      const value = await loader();
+      const storedAt = Date.now();
+      store.set(key, { value, expires: storedAt + ttlSeconds * 1000, storedAt });
+      return { value, stale: false, storedAt };
+    } catch (err) {
+      // Serve last-good data rather than blanking the widget.
+      if (hit) {
+        return { value: hit.value, stale: true, storedAt: hit.storedAt };
+      }
+      throw err;
+    } finally {
+      inflight.delete(key);
     }
-    throw err;
-  }
+  })();
+  inflight.set(key, run as Promise<{ value: unknown; stale: boolean; storedAt: number }>);
+  return run;
 }
 
 /** Read a still-fresh cached value, or undefined. For callers that need to pick

@@ -3,6 +3,7 @@ import { TickerTape } from "@/components/TickerTape";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Hero } from "@/components/landing/Hero";
 import { QuickAccess } from "@/components/landing/QuickAccess";
+import { MoversStrip } from "@/components/landing/MoversStrip";
 import { FeatureGrid } from "@/components/landing/FeatureGrid";
 
 export default function Home() {
@@ -26,6 +27,11 @@ export default function Home() {
         {/* Live market overview */}
         <div className="mt-20 w-full">
           <MarketOverview />
+        </div>
+
+        {/* What's moving right now — biggest gainers/losers, one click to the boards */}
+        <div className="mt-12 w-full">
+          <MoversStrip />
         </div>
 
         {/* Features */}

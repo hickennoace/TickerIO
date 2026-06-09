@@ -83,7 +83,12 @@ export function computeTimeframes(
   const quarterPick =
     firstWhere((z) => z.year === nowParts.year && z.quarter === nowParts.quarter) ?? monthPick;
   const ytdPick = firstWhere((z) => z.year === nowParts.year) ?? quarterPick;
-  const yearPick = closestTo(nowMs - 365 * 24 * 3600 * 1000);
+  const yearTarget = nowMs - 365 * 24 * 3600 * 1000;
+  const yearPick = closestTo(yearTarget);
+  // No silent data lies (§1.2.3): with under a year of history (IPO, new listing), closestTo()
+  // returns the oldest candle — labelling that "1 year ago" would be wrong. Say what it really is.
+  const yearAnchorHonest =
+    Math.abs(yearPick.at - yearTarget) > 45 * 24 * 3600 * 1000 ? "since oldest data" : "1 year ago";
 
   const rows: Array<{ label: string; anchor: string; pick: AnchorPick }> = [
     { label: "Day", anchor: crypto ? "today 00:00 UTC" : "session open", pick: dayPick },
@@ -91,7 +96,7 @@ export function computeTimeframes(
     { label: "Month", anchor: crypto ? "1st 00:00 UTC" : "month open", pick: monthPick },
     { label: "Quarter", anchor: crypto ? "Q open UTC" : "quarter open", pick: quarterPick },
     { label: "YTD", anchor: crypto ? "Jan 1 00:00 UTC" : "year open", pick: ytdPick },
-    { label: "1Y", anchor: "1 year ago", pick: yearPick },
+    { label: "1Y", anchor: yearAnchorHonest, pick: yearPick },
   ];
 
   return rows.map(({ label, anchor, pick }): TimeframeRow => ({

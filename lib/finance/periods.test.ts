@@ -93,5 +93,17 @@ describe("computeTimeframes — 1Y rolling", () => {
     const y = rows.find((r) => r.label === "1Y")!;
     const ageDays = (Date.now() - Date.parse(y.anchorAt)) / DAY;
     expect(Math.abs(ageDays - 365)).toBeLessThanOrEqual(5);
+    expect(y.anchor).toBe("1 year ago");
+  });
+
+  it("with under a year of history (IPO), says 'since oldest data' — never claims '1 year ago'", () => {
+    // Only ~120 days of history: closestTo(now − 365d) must not be labelled a year.
+    const candles: DailyCandle[] = [];
+    for (let i = 120; i >= 0; i -= 5) {
+      candles.push({ t: Date.now() - i * DAY, o: 100, c: 100 });
+    }
+    const rows = computeTimeframes(candles, 110, "UTC", "equity", Date.now());
+    const y = rows.find((r) => r.label === "1Y")!;
+    expect(y.anchor).toBe("since oldest data");
   });
 });
