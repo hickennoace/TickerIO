@@ -353,11 +353,12 @@ Build in phases. **Do not start a phase until the previous one is green.** Each 
 - [x] **Compare, easier** — reusable `SymbolAutocomplete` (Yahoo search, keyboard-nav dropdown) replaces the plain add-symbol input; overlay period selector (1M/3M/6M/YTD/1Y); chip count + "load example set".
 - [x] **Landing quick-access launchers** — `components/landing/QuickAccess.tsx` cards jump straight to Leaders / Watchlist / Compare without typing a ticker; landing hero/features split into animated `landing/` components.
 - [x] **Motion System v2** — shared `lib/motion.ts` vocabulary; route transitions (`app/template.tsx`); animated tab pills (shared `layoutId`), staggered/reflowing sector tiles, growing rank bars, count-ups, animated dropdowns, compare-chip + theme-toggle micro-interactions. All transform/opacity-only and `useReducedMotion`-gated. Spec: `docs/superpowers/specs/2026-06-08-motion-system-v2-design.md`.
-- [ ] **Movers of the day** — biggest gainers/losers across the whole curated universe (one cross-sector leaderboard) on `/markets` + a landing-page strip.
-- [ ] **52-week high/low & near-breakout scans** — surface names pressing their range extremes (data already in the quote: `fiftyTwoWeekHigh/Low`).
+- [x] **Movers of the day** — biggest gainers/losers across a curated cross-asset universe (`MOVERS_UNIVERSE`: mega-caps + household-name crypto) as the default `/markets` "Movers" tab (`MoversBoard.tsx`). *(Landing-page strip still TODO.)*
+- [x] **52-week high/low & near-breakout scans** — "52-Wk Range" tab (`RangeScanBoard.tsx`): near-52w-high breakout watch + near-52w-low scan, each row showing its position inside the trailing-year range. `MiniQuote` + `/api/batch-quotes` now carry `fiftyTwoWeekHigh/Low`; shares the `"movers"` batch cache with the Movers board.
 - [ ] **Crypto market context** — total market cap + BTC dominance rail (CoinGecko, the long-tail "crypto jungle"); deferred coingecko provider from Phase 1.
 - [ ] **Per-row sparklines** on the boards (reuse `Sparkline`; needs a cached mini-candle batch or a `range`-aware batch endpoint).
-- 🔶 *Status:* Leaders board, sector drilldown, crypto/commodity rankings, and the Compare autocomplete are live; movers/breakout scans and crypto-cap context remain.
+- [ ] **Landing-page movers strip** — compact "what's moving now" rail on `/` feeding off `MOVERS_UNIVERSE`.
+- 🔶 *Status:* Leaders board, sector drilldown, crypto/commodity rankings, Compare autocomplete, **Movers leaderboard, and 52-week range scans** are live; crypto-cap context, per-row sparklines, and the landing movers strip remain.
 
 ### Phase 11 — Pro Analytics & Alpha (planned) 📈
 Ideas backlog — sequence after Phase 10 lands:
