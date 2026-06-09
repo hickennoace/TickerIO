@@ -1,23 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { LayoutGrid, Bitcoin, Gem } from "lucide-react";
+import { Flame, Gauge, LayoutGrid, Bitcoin, Gem } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { SectorBoard } from "./SectorBoard";
 import { RankedQuotes } from "./RankedQuotes";
+import { MoversBoard } from "./MoversBoard";
+import { RangeScanBoard } from "./RangeScanBoard";
 import { CRYPTO_LEADERS, COMMODITIES } from "@/lib/markets/leaders";
 import { DURATION, EASE, fadeUp, staggerContainer } from "@/lib/motion";
 
-type Tab = "sectors" | "crypto" | "commodities";
+type Tab = "movers" | "sectors" | "crypto" | "commodities" | "range";
 
 const TABS: { key: Tab; label: string; icon: typeof LayoutGrid }[] = [
+  { key: "movers", label: "Movers", icon: Flame },
   { key: "sectors", label: "Sectors", icon: LayoutGrid },
   { key: "crypto", label: "Crypto", icon: Bitcoin },
   { key: "commodities", label: "Commodities", icon: Gem },
+  { key: "range", label: "52-Wk Range", icon: Gauge },
 ];
 
 export function MarketsClient() {
-  const [tab, setTab] = useState<Tab>("sectors");
+  const [tab, setTab] = useState<Tab>("movers");
   const reduce = useReducedMotion();
 
   return (
@@ -29,8 +33,10 @@ export function MarketsClient() {
         </p>
       </div>
 
-      {/* Tab bar — the active pill glides between tabs via shared layout. */}
-      <div className="mb-6 inline-flex gap-1 rounded-xl border border-[var(--border)] bg-[var(--panel)] p-1">
+      {/* Tab bar — the active pill glides between tabs via shared layout.
+          Wrapped so the 5 pills scroll horizontally instead of overflowing on mobile. */}
+      <div className="mb-6 -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="inline-flex gap-1 rounded-xl border border-[var(--border)] bg-[var(--panel)] p-1">
         {TABS.map((t) => {
           const on = t.key === tab;
           return (
@@ -56,6 +62,7 @@ export function MarketsClient() {
           );
         })}
       </div>
+      </div>
 
       <AnimatePresence mode="wait">
         <motion.div
@@ -65,7 +72,11 @@ export function MarketsClient() {
           exit={reduce ? undefined : { opacity: 0, y: -8 }}
           transition={{ duration: DURATION.base, ease: EASE }}
         >
+          {tab === "movers" && <MoversBoard />}
+
           {tab === "sectors" && <SectorBoard />}
+
+          {tab === "range" && <RangeScanBoard />}
 
           {tab === "crypto" && (
             <div className="panel p-4">

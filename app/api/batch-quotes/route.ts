@@ -52,6 +52,8 @@ export async function GET(req: NextRequest) {
       price: q.price,
       changePct: q.changePct,
       change: q.change,
+      fiftyTwoWeekHigh: q.fiftyTwoWeekHigh,
+      fiftyTwoWeekLow: q.fiftyTwoWeekLow,
     });
   });
 

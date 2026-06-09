@@ -165,3 +165,32 @@ export const COMMODITIES: CommodityGroup[] = [
 export const COMMODITY_NAMES: Record<string, string> = Object.fromEntries(
   COMMODITIES.flatMap((g) => g.items.map((i) => [i.symbol, i.name])),
 );
+
+/**
+ * The cross-asset "movers" universe — the single, hand-picked watchlist that
+ * powers the *Movers of the day* leaderboard and the *52-week range* scans
+ * (CLAUDE.md Phase 10). One curated set (≤ the batch endpoint's 60-symbol cap)
+ * so both boards resolve in a single cached `/api/batch-quotes` fan-out.
+ *
+ * Composition: the mega-cap names across every equity sector that actually
+ * carry the tape, plus the household-name coins. We deliberately keep liquid,
+ * well-known symbols only — a "biggest mover" surfacing some illiquid micro-cap
+ * would be noise, not signal. 52-week highs/lows come back on the same quote.
+ */
+export const MOVERS_UNIVERSE: string[] = [
+  // Mega-cap tech / communication / discretionary
+  "AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "META", "TSLA", "AVGO", "ORCL",
+  "NFLX", "AMD", "CRM", "ADBE", "INTC", "QCOM", "MU", "PLTR", "UBER",
+  "SHOP", "COIN",
+  // Financials
+  "JPM", "V", "MA", "BAC", "GS",
+  // Health care
+  "LLY", "UNH", "JNJ", "MRK", "PFE",
+  // Energy / industrials / materials
+  "XOM", "CVX", "CAT", "GE", "BA", "FCX",
+  // Consumer staples / discretionary anchors
+  "WMT", "COST", "HD", "MCD", "KO", "PEP", "NKE", "DIS",
+  // Household-name crypto
+  "BTC-USD", "ETH-USD", "SOL-USD", "BNB-USD", "XRP-USD", "DOGE-USD",
+  "ADA-USD", "AVAX-USD", "LINK-USD",
+];

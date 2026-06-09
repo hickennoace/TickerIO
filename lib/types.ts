@@ -36,6 +36,9 @@ export interface MiniQuote {
   price: number;
   changePct: number;
   change: number;
+  /** 52-week range extremes — present when the provider supplies them (powers range scans). */
+  fiftyTwoWeekHigh?: number | null;
+  fiftyTwoWeekLow?: number | null;
 }
 
 export interface Candle {
