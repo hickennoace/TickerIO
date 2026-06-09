@@ -93,7 +93,12 @@ export function TickerSearch({
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.96 }}
           transition={SPRING.snappy}
-          className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-xl bg-[var(--accent)] font-semibold text-white transition-opacity hover:opacity-90 ${
+          // Vertical centering is handled by motion's `y: "-50%"` below so it
+          // survives the whileHover/whileTap scale animation. Don't add Tailwind's
+          // `-translate-y-1/2` here — in Tailwind v4 that sets the CSS `translate`
+          // property, which composes with motion's `transform` and doubles to
+          // -100% (the button pops out the top of the bar).
+          className={`absolute right-2 top-1/2 rounded-xl bg-[var(--accent)] font-semibold text-white transition-opacity hover:opacity-90 ${
             big ? "px-5 py-2.5 text-sm" : "px-3 py-1.5 text-xs"
           }`}
           style={{ y: "-50%" }}
