@@ -82,7 +82,11 @@ export function TradingViewChart({
           allow_symbol_change: true,
           hide_side_toolbar: false,
           withdateranges: true,
-          studies: ["Volume@tv-basicstudies"],
+          // Volume renders as the built-in overlay on the main price pane
+          // (hide_volume defaults to false). We intentionally do NOT add the
+          // "Volume@tv-basicstudies" study, which would create a duplicate
+          // volume in a separate pane at the bottom of the chart.
+          hide_volume: false,
         });
       })
       .catch(() => {
