@@ -200,6 +200,17 @@ export interface ScreenerResponse {
 
 export const fetchScreener = () => get<ScreenerResponse>(`/api/screener`);
 
+// ---- Consolidated dashboard overview (timeframes + sentiment + trend-bias) ----
+export interface OverviewResponse {
+  timeframes: { rows: TimeframeRow[]; currency: string; tz: string; source: string };
+  sentiment: Omit<SentimentResponse, "asOf">;
+  trendBias: TrendBiasResult & { source: string };
+  asOf: string;
+}
+
+export const fetchOverview = (symbol: string) =>
+  get<OverviewResponse>(`/api/overview?symbol=${encodeURIComponent(symbol)}`);
+
 export const fetchCalendar = () =>
   get<{ events: CalendarEvent[]; source: string; asOf: string }>(`/api/calendar`);
 

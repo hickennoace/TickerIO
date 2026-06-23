@@ -9,6 +9,7 @@ import {
   fetchCalendar,
   fetchCandles,
   fetchFundamentals,
+  fetchOverview,
   fetchPeers,
   fetchScreener,
   fetchNews,
@@ -122,6 +123,16 @@ export function useTimeframes(symbol: string) {
   return useQuery({
     queryKey: ["timeframes", symbol],
     queryFn: () => fetchTimeframes(symbol),
+    refetchInterval: 60_000,
+  });
+}
+
+/** Consolidated read: timeframes + sentiment + trend-bias from one daily-candle
+ *  fetch (replaces three separate dashboard requests). */
+export function useOverview(symbol: string) {
+  return useQuery({
+    queryKey: ["overview", symbol],
+    queryFn: () => fetchOverview(symbol),
     refetchInterval: 60_000,
   });
 }

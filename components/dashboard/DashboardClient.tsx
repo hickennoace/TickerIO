@@ -15,12 +15,10 @@ import {
   useCandles,
   useFundamentals,
   useNews,
+  useOverview,
   usePeers,
   useProfile,
   useQuote,
-  useSentiment,
-  useTimeframes,
-  useTrendBias,
   usePriceStream,
 } from "@/lib/hooks";
 import { useBias } from "@/store/useBias";
@@ -44,9 +42,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 export function DashboardClient({ symbol }: { symbol: string }) {
   const quoteQ = useQuote(symbol);
   const candlesQ = useCandles(symbol);
-  const tfQ = useTimeframes(symbol);
-  const sentQ = useSentiment(symbol);
-  const biasQ = useTrendBias(symbol);
+  const overviewQ = useOverview(symbol);
   const newsQ = useNews(symbol);
   const fundQ = useFundamentals(symbol);
   const profileQ = useProfile(symbol);
@@ -59,7 +55,7 @@ export function DashboardClient({ symbol }: { symbol: string }) {
 
   const quote = quoteQ.data;
   const spark = candlesQ.data?.candles.map((c) => c.c) ?? [];
-  const bias = biasQ.data?.bias ?? 0;
+  const bias = overviewQ.data?.trendBias.bias ?? 0;
 
   // Tint the global living background to this symbol's bias; reset on leave.
   const setBias = useBias((s) => s.setBias);
@@ -86,17 +82,18 @@ export function DashboardClient({ symbol }: { symbol: string }) {
     }
   }
 
+  const ov = overviewQ.data;
   const widgetNodes: Record<string, ReactNode> = {
-    performance: <TimeframePanel rows={tfQ.data?.rows} currency={tfQ.data?.currency} loading={tfQ.isLoading} />,
+    performance: <TimeframePanel rows={ov?.timeframes.rows} currency={ov?.timeframes.currency} loading={overviewQ.isLoading} />,
     keystats: <KeyStats quote={quote} loading={quoteQ.isLoading} />,
-    feargreed: <FearGreedGauge score={sentQ.data?.score} source={sentQ.data?.source} loading={sentQ.isLoading} />,
+    feargreed: <FearGreedGauge score={ov?.sentiment.score} source={ov?.sentiment.source} loading={overviewQ.isLoading} />,
     trendbias: (
       <TrendBiasIndicator
-        bias={biasQ.data?.bias}
-        technical={biasQ.data?.technical}
-        sentiment={biasQ.data?.sentiment}
-        label={biasQ.data?.label}
-        loading={biasQ.isLoading}
+        bias={ov?.trendBias.bias}
+        technical={ov?.trendBias.technical}
+        sentiment={ov?.trendBias.sentiment}
+        label={ov?.trendBias.label}
+        loading={overviewQ.isLoading}
       />
     ),
     calendar: <EconomicCalendar events={calQ.data?.events} source={calQ.data?.source} loading={calQ.isLoading} />,
