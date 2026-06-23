@@ -28,7 +28,7 @@ export function CompareChart({ series, height = 320 }: { series: CompareSeries[]
   if (normalized.length === 0) {
     return (
       <div className="grid h-[320px] place-items-center text-sm" style={{ color: "var(--fg-dim)" }}>
-        No overlapping data to compare yet.
+        אין עדיין נתונים חופפים להשוואה.
       </div>
     );
   }
@@ -45,6 +45,7 @@ export function CompareChart({ series, height = 320 }: { series: CompareSeries[]
   const zeroY = y(0);
 
   return (
+    <div dir="ltr">
     <svg width="100%" viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
       {/* Zero baseline */}
       <line x1={padX} y1={zeroY} x2={width - padX} y2={zeroY} stroke="var(--border-strong)" strokeDasharray="4 4" />
@@ -78,5 +79,6 @@ export function CompareChart({ series, height = 320 }: { series: CompareSeries[]
         );
       })}
     </svg>
+    </div>
   );
 }

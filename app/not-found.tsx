@@ -16,9 +16,9 @@ export default function NotFound() {
           Ticker<span style={{ color: "var(--accent)" }}>IO</span>
         </span>
       </Link>
-      <h1 className="text-5xl font-bold tracking-tight">404</h1>
+      <h1 className="text-5xl font-bold tracking-tight font-mono-num">404</h1>
       <p className="mt-3 max-w-md text-[var(--fg-muted)]">
-        That page doesn&apos;t exist. Search a ticker to pull up its dashboard.
+        העמוד הזה לא קיים. חפשו טיקר כדי לפתוח את לוח הנתונים שלו.
       </p>
       <div className="mt-8 w-full max-w-md">
         <TickerSearch size="lg" />

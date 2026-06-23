@@ -17,7 +17,7 @@ export function WatchStar({ symbol }: { symbol: string }) {
       onClick={() => toggle(symbol)}
       className="grid h-9 w-9 place-items-center rounded-lg border transition-colors hover:border-[var(--border-strong)]"
       style={{ borderColor: "var(--border)" }}
-      title={active ? "Remove from watchlist" : "Add to watchlist"}
+      title={active ? "הסר מרשימת המעקב" : "הוסף לרשימת המעקב"}
       aria-pressed={active}
     >
       <Star

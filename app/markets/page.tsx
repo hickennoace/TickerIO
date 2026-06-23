@@ -3,9 +3,9 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { MarketsClient } from "@/components/markets/MarketsClient";
 
 export const metadata: Metadata = {
-  title: "Market Leaders — TickerIO",
+  title: "מובילי השוק — TickerIO",
   description:
-    "See today's leaders across the 11 equity sectors, leading cryptocurrencies, and top commodities — ranked by performance.",
+    "המובילים של היום על פני 11 סקטורי המניות, מטבעות הקריפטו המובילים והסחורות הבולטות — מדורגים לפי ביצועים.",
 };
 
 export default function MarketsPage() {

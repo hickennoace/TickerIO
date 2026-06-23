@@ -46,10 +46,10 @@ export function CommandPalette() {
   type Row = { symbol: string; label: string; sub?: string; section?: string };
   let rows: Row[];
   if (isEmpty) {
-    const recentRows: Row[] = recents.map((s) => ({ symbol: s, label: s, section: "Recent" }));
+    const recentRows: Row[] = recents.map((s) => ({ symbol: s, label: s, section: "אחרונים" }));
     const watchRows: Row[] = watchSymbols
       .filter((s) => !recents.includes(s))
-      .map((s) => ({ symbol: s, label: s, section: "Watchlist" }));
+      .map((s) => ({ symbol: s, label: s, section: "רשימת מעקב" }));
     rows = [...recentRows, ...watchRows];
   } else {
     rows = hits.map((h) => ({ symbol: h.symbol, label: h.symbol, sub: h.name }));
@@ -108,7 +108,7 @@ export function CommandPalette() {
                   setActive(0);
                 }}
                 onKeyDown={onKeyDown}
-                placeholder="Jump to any ticker — AAPL, BTC, EURUSD…"
+                placeholder="קפיצה לכל טיקר — AAPL, BTC, EURUSD…"
                 spellCheck={false}
                 autoComplete="off"
                 className="w-full bg-transparent py-4 text-base outline-none placeholder:text-[var(--fg-dim)]"
@@ -121,7 +121,7 @@ export function CommandPalette() {
             <ul className="max-h-[50vh] overflow-y-auto p-1.5">
               {rows.length === 0 ? (
                 <li className="px-3 py-6 text-center text-sm" style={{ color: "var(--fg-dim)" }}>
-                  {query ? "No matches — press Enter to try anyway." : "Type to search markets."}
+                  {query ? "אין התאמות — הקש Enter כדי לנסות בכל זאת." : "הקלד כדי לחפש בשווקים."}
                 </li>
               ) : (
                 rows.map((r, i) => {
@@ -136,10 +136,10 @@ export function CommandPalette() {
                       <button
                         onMouseEnter={() => setActive(i)}
                         onClick={() => go(r.symbol)}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left"
+                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-start"
                         style={{ background: i === active ? "var(--panel-2)" : "transparent" }}
                       >
-                        {r.section === "Watchlist" ? (
+                        {r.section === "רשימת מעקב" ? (
                           <Star size={15} style={{ color: "var(--warn)" }} fill="var(--warn)" />
                         ) : (
                           <Search size={15} style={{ color: "var(--fg-dim)" }} />
@@ -151,7 +151,7 @@ export function CommandPalette() {
                           </span>
                         )}
                         {i === active && (
-                          <CornerDownLeft size={14} className="ml-auto" style={{ color: "var(--fg-dim)" }} />
+                          <CornerDownLeft size={14} className="me-auto" style={{ color: "var(--fg-dim)" }} />
                         )}
                       </button>
                     </li>

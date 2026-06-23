@@ -32,13 +32,13 @@ function MoverRow({ q, rank, reduce, maxAbs }: { q: MiniQuote; rank: number; red
         className="panel-hover relative flex items-center gap-3 overflow-hidden rounded-lg px-3 py-2.5"
       >
         <motion.span
-          className="pointer-events-none absolute inset-y-0 left-0"
+          className="pointer-events-none absolute inset-y-0 start-0"
           style={{ background: color, opacity: 0.07 }}
           initial={reduce ? false : { width: 0 }}
           animate={{ width: `${width}%` }}
           transition={{ duration: DURATION.slow, ease: EASE, delay: 0.1 }}
         />
-        <span className="w-5 shrink-0 text-right font-mono-num text-xs" style={{ color: "var(--fg-dim)" }}>
+        <span className="w-5 shrink-0 text-end font-mono-num text-xs" style={{ color: "var(--fg-dim)" }}>
           {rank}
         </span>
         <span className="w-16 shrink-0 truncate font-semibold">{q.display}</span>
@@ -46,7 +46,7 @@ function MoverRow({ q, rank, reduce, maxAbs }: { q: MiniQuote; rank: number; red
           {q.name}
         </span>
         <span className="shrink-0 font-mono-num text-sm">{formatPrice(q.price, q.currency)}</span>
-        <span className="w-20 shrink-0 text-right font-mono-num text-sm font-semibold" style={{ color }}>
+        <span className="w-20 shrink-0 text-end font-mono-num text-sm font-semibold" style={{ color }}>
           {formatPercent(q.changePct)}
         </span>
       </Link>
@@ -76,7 +76,7 @@ function Column({
       </div>
       {quotes.length === 0 ? (
         <p className="px-3 py-6 text-center text-sm" style={{ color: "var(--fg-dim)" }}>
-          No data available right now.
+          אין נתונים זמינים כרגע.
         </p>
       ) : (
         <motion.div
@@ -134,8 +134,8 @@ export function MoversBoard() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <Column title="Top Gainers" icon={TrendingUp} tone="var(--up)" quotes={gainers} reduce={reduce} />
-      <Column title="Top Losers" icon={TrendingDown} tone="var(--down)" quotes={losers} reduce={reduce} />
+      <Column title="המובילים בעליות" icon={TrendingUp} tone="var(--up)" quotes={gainers} reduce={reduce} />
+      <Column title="המובילים בירידות" icon={TrendingDown} tone="var(--down)" quotes={losers} reduce={reduce} />
     </div>
   );
 }

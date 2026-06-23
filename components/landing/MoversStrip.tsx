@@ -22,7 +22,7 @@ function MoverChip({ q }: { q: MiniQuote }) {
       <Link
         href={`/${encodeURIComponent(q.symbol)}`}
         className="panel panel-hover flex items-center justify-between gap-3 px-3.5 py-2.5"
-        title={`${q.name} — today's anchored move`}
+        title={`${q.name} — התנועה המעוגנת של היום`}
       >
         <span className="min-w-0">
           <span className="block truncate text-sm font-semibold">{q.display}</span>
@@ -64,10 +64,10 @@ export function MoversStrip() {
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--fg-muted)]">
-            Moving today
+            תנועות היום
           </h2>
           <span className="text-[11px]" style={{ color: "var(--fg-dim)" }}>
-            anchored to today&apos;s open
+            מעוגן לפתיחה של היום
           </span>
         </div>
         <Link
@@ -75,8 +75,8 @@ export function MoversStrip() {
           className="group flex items-center gap-1 text-xs font-medium transition-colors hover:text-[var(--fg)]"
           style={{ color: "var(--fg-muted)" }}
         >
-          All movers
-          <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-0.5" />
+          כל התנועות
+          <ArrowRight size={13} data-flip-rtl className="transition-transform duration-300 group-hover:translate-x-0.5" />
         </Link>
       </div>
 

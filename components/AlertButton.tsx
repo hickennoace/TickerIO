@@ -56,8 +56,8 @@ export function AlertButton({
         onClick={() => setOpen((o) => !o)}
         className="relative grid h-9 w-9 place-items-center rounded-lg border transition-colors hover:border-[var(--border-strong)]"
         style={{ borderColor: "var(--border)" }}
-        title="Price alerts"
-        aria-label="Price alerts"
+        title="התראות מחיר"
+        aria-label="התראות מחיר"
       >
         <Bell size={17} style={{ color: mine.length ? "var(--accent)" : "var(--fg-dim)" }} fill={mine.length ? "var(--accent)" : "none"} />
         {mine.length > 0 && (
@@ -76,7 +76,7 @@ export function AlertButton({
           style={{ boxShadow: "0 24px 48px -20px rgba(0,0,0,0.9)" }}
         >
           <div className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--fg-muted)" }}>
-            Alert me when {symbol} is
+            התרע לי כש-{symbol}
           </div>
           <form onSubmit={submit} className="space-y-2">
             <div className="flex gap-1 rounded-lg border p-1" style={{ borderColor: "var(--border)" }}>
@@ -85,10 +85,10 @@ export function AlertButton({
                   key={o}
                   type="button"
                   onClick={() => setOp(o)}
-                  className="flex-1 rounded-md py-1 text-xs font-semibold capitalize transition-colors"
+                  className="flex-1 rounded-md py-1 text-xs font-semibold transition-colors"
                   style={op === o ? { background: "var(--panel-2)", color: "var(--fg)" } : { color: "var(--fg-dim)" }}
                 >
-                  {o}
+                  {o === "above" ? "מעל" : "מתחת"}
                 </button>
               ))}
             </div>
@@ -97,11 +97,11 @@ export function AlertButton({
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 inputMode="decimal"
-                placeholder="Price"
+                placeholder="מחיר"
                 className="w-full rounded-lg border bg-[var(--panel-2)] px-2.5 py-1.5 font-mono-num text-sm outline-none focus:border-[var(--accent)]"
               />
               <button type="submit" className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90">
-                Set
+                הגדר
               </button>
             </div>
           </form>
@@ -111,9 +111,9 @@ export function AlertButton({
               {mine.map((a) => (
                 <li key={a.id} className="flex items-center justify-between text-xs">
                   <span style={{ color: "var(--fg-muted)" }}>
-                    {a.op} <span className="font-mono-num text-[var(--fg)]">{formatPrice(a.price, currency)}</span>
+                    {a.op === "above" ? "מעל" : "מתחת"} <span className="font-mono-num text-[var(--fg)]">{formatPrice(a.price, currency)}</span>
                   </span>
-                  <button onClick={() => remove(a.id)} aria-label="Remove alert">
+                  <button onClick={() => remove(a.id)} aria-label="הסר התראה">
                     <X size={13} style={{ color: "var(--fg-dim)" }} />
                   </button>
                 </li>
@@ -121,7 +121,7 @@ export function AlertButton({
             </ul>
           )}
           <p className="mt-2 text-[10px]" style={{ color: "var(--fg-dim)" }}>
-            Notifies while TickerIO is open.
+            מתריע כל עוד TickerIO פתוח.
           </p>
         </div>
       )}

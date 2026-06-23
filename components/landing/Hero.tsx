@@ -38,24 +38,24 @@ export function Hero() {
         style={{ borderColor: "var(--border)", background: "rgba(255,255,255,0.02)", color: "var(--fg-muted)" }}
       >
         <LivePulse color="var(--up)" />
-        Live data · Yahoo · CoinDesk · FXStreet · Forex Factory
+        נתונים בזמן אמת · Yahoo · CoinDesk · FXStreet · Forex Factory
       </motion.div>
 
       <motion.h1
         variants={fadeUp}
         className="font-display max-w-4xl text-5xl font-extrabold leading-[1.04] tracking-tight sm:text-7xl"
       >
-        The whole market truth,
+        כל האמת על השוק,
         <br />
-        <span className="text-gradient">one ticker away.</span>
+        <span className="text-gradient">במרחק טיקר אחד.</span>
       </motion.h1>
 
       <motion.p
         variants={fadeUp}
         className="mt-7 max-w-xl text-balance text-lg leading-relaxed text-[var(--fg-muted)]"
       >
-        Type a symbol for a complete, real-time read — TradingView charts, anchored
-        performance, AI sentiment, and trend bias. One page, no refresh.
+        הקלידו סימול וקבלו תמונה מלאה בזמן אמת — גרפים של TradingView, ביצועים
+        מעוגנים, סנטימנט מבוסס בינה מלאכותית ונטיית מגמה. עמוד אחד, ללא רענון.
       </motion.p>
 
       <motion.div variants={fadeUp} className="mt-10 w-full max-w-xl">

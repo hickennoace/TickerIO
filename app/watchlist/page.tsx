@@ -3,8 +3,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { WatchlistClient } from "@/components/watchlist/WatchlistClient";
 
 export const metadata: Metadata = {
-  title: "Watchlist — TickerIO",
-  description: "Your tracked symbols with live prices and intraday sparklines.",
+  title: "רשימת מעקב — TickerIO",
+  description: "הסמלים שאתם עוקבים אחריהם, עם מחירים בזמן אמת וגרפי מיני תוך-יומיים.",
 };
 
 export default function WatchlistPage() {

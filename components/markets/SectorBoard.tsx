@@ -53,7 +53,7 @@ function SectorTile({
       whileTap={reduce ? undefined : { scale: 0.98 }}
       transition={SPRING.soft}
       onClick={onClick}
-      className="panel relative flex flex-col items-start gap-1 p-3 text-left"
+      className="panel relative flex flex-col items-start gap-1 p-3 text-start"
       style={{
         background: quote ? tint(pct) : "var(--panel)",
         outline: selected ? "1.5px solid var(--accent)" : "none",
@@ -61,7 +61,7 @@ function SectorTile({
     >
       <div className="flex w-full items-center justify-between">
         <span className="text-sm font-semibold">{sector.label}</span>
-        <ChevronRight size={14} style={{ color: selected ? "var(--accent)" : "var(--fg-dim)" }} />
+        <ChevronRight size={14} data-flip-rtl style={{ color: selected ? "var(--accent)" : "var(--fg-dim)" }} />
       </div>
       <div className="flex items-baseline gap-2">
         {quote ? (
@@ -108,10 +108,10 @@ export function SectorBoard() {
     <div className="flex flex-col gap-5">
       <div>
         <h2 className="mb-1 text-sm font-semibold uppercase tracking-wider text-[var(--fg-muted)]">
-          Sector performance
+          ביצועי הסקטורים
         </h2>
         <p className="mb-3 text-xs" style={{ color: "var(--fg-dim)" }}>
-          Today&apos;s move by SPDR sector ETF · click a sector for its leading stocks
+          התנועה היומית לפי תעודות הסל הסקטוריאליות של SPDR · לחצו על סקטור כדי לראות את המניות המובילות בו
         </p>
         <motion.div
           className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4"
@@ -144,11 +144,11 @@ export function SectorBoard() {
                 exit={reduce ? undefined : { opacity: 0, x: 8 }}
                 transition={{ duration: DURATION.fast, ease: EASE }}
               >
-                {active.label} — leaders
+                {active.label} — מובילים
               </motion.h3>
             </AnimatePresence>
             <span className="text-xs" style={{ color: "var(--fg-dim)" }}>
-              ranked by today&apos;s move
+              מדורג לפי התנועה היומית
             </span>
           </div>
           <RankedQuotes

@@ -9,22 +9,22 @@ const CARDS: { href: string; icon: LucideIcon; title: string; desc: string; tint
   {
     href: "/markets",
     icon: Trophy,
-    title: "Leaders",
-    desc: "Top movers across sectors, crypto & commodities.",
+    title: "מובילים",
+    desc: "התנועות הבולטות בסקטורים, בקריפטו ובסחורות.",
     tint: "var(--accent)",
   },
   {
     href: "/watchlist",
     icon: Star,
-    title: "Watchlist",
-    desc: "Your symbols, live — sparklines, ticks & price alerts.",
+    title: "רשימת מעקב",
+    desc: "הסימולים שלכם בזמן אמת — גרפים זעירים, עדכונים והתראות מחיר.",
     tint: "var(--accent-3)",
   },
   {
     href: "/compare",
     icon: Scale,
-    title: "Compare",
-    desc: "Overlay performance, normalized side by side.",
+    title: "השוואה",
+    desc: "השוואת ביצועים מנורמלת, זה לצד זה.",
     tint: "var(--accent-2)",
   },
 ];

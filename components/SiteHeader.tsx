@@ -33,16 +33,16 @@ export function SiteHeader({ showSearch = true }: { showSearch?: boolean }) {
         <div className="ms-auto flex items-center gap-3">
           <nav className="hidden items-center gap-5 text-sm text-[var(--fg-muted)] md:flex">
             <Link href="/" className="transition-colors hover:text-[var(--fg)]">
-              Markets
+              שווקים
             </Link>
             <Link href="/markets" className="transition-colors hover:text-[var(--fg)]">
-              Leaders
+              מובילים
             </Link>
             <Link href="/watchlist" className="transition-colors hover:text-[var(--fg)]">
-              Watchlist
+              רשימת מעקב
             </Link>
             <Link href="/compare" className="transition-colors hover:text-[var(--fg)]">
-              Compare
+              השוואה
             </Link>
           </nav>
           <CommandHint />

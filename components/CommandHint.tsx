@@ -11,7 +11,7 @@ export function CommandHint() {
       }
       className="hidden items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium text-[var(--fg-muted)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--fg)] sm:flex"
       style={{ borderColor: "var(--border)" }}
-      title="Quick search (Ctrl/⌘ K)"
+      title="חיפוש מהיר (Ctrl/⌘ K)"
     >
       <Command size={13} />
       <span>K</span>

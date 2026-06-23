@@ -24,10 +24,10 @@ export function MarketOverview() {
     <div className="w-full">
       <div className="mb-3 flex items-center gap-2">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--fg-muted)]">
-          Markets now
+          השווקים עכשיו
         </h2>
         <span className="text-[11px]" style={{ color: "var(--fg-dim)" }}>
-          live · Yahoo Finance
+          בזמן אמת · Yahoo Finance
         </span>
       </div>
       <motion.div
@@ -47,7 +47,7 @@ export function MarketOverview() {
         <>
           <div className="mb-3 mt-8 flex items-center gap-2">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--fg-muted)]">
-              Your watchlist
+              רשימת המעקב שלכם
             </h2>
           </div>
           <motion.div

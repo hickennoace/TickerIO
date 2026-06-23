@@ -21,7 +21,7 @@ export function MiniTicker({ symbol, label }: { symbol: string; label?: string }
       <div className="panel p-3 opacity-60">
         <span className="text-sm font-semibold">{label ?? symbol}</span>
         <p className="mt-1 text-xs" style={{ color: "var(--fg-dim)" }}>
-          unavailable
+          לא זמין
         </p>
       </div>
     );

@@ -81,7 +81,7 @@ export function TickerSearch({
             blurTimer.current = setTimeout(() => setOpen(false), 120);
           }}
           onKeyDown={onKeyDown}
-          placeholder="Search a ticker — AAPL, BTC, ETH…"
+          placeholder="חיפוש טיקר — AAPL, BTC, ETH…"
           spellCheck={false}
           autoComplete="off"
           className={`w-full rounded-2xl border bg-[var(--panel)] font-medium text-[var(--fg)] outline-none transition-colors placeholder:text-[var(--fg-dim)] focus:border-[var(--accent)] ${
@@ -103,7 +103,7 @@ export function TickerSearch({
           }`}
           style={{ y: "-50%" }}
         >
-          Analyze
+          נתח
         </motion.button>
       </form>
 
@@ -146,7 +146,7 @@ export function TickerSearch({
       {big && !open && (
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           <span className="text-xs" style={{ color: "var(--fg-dim)" }}>
-            Try
+            נסה
           </span>
           {SUGGESTIONS.map((s) => (
             <motion.button

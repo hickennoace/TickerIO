@@ -38,8 +38,8 @@ export function ThemeToggle() {
       transition={SPRING.snappy}
       className="grid h-9 w-9 place-items-center overflow-hidden rounded-lg border transition-colors hover:border-[var(--border-strong)]"
       style={{ borderColor: "var(--border)" }}
-      title={theme === "dark" ? "Switch to light" : "Switch to dark"}
-      aria-label="Toggle color theme"
+      title={theme === "dark" ? "עבור למצב בהיר" : "עבור למצב כהה"}
+      aria-label="החלפת ערכת נושא"
     >
       <AnimatePresence mode="wait" initial={false}>
         <motion.span

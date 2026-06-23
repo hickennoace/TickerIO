@@ -73,8 +73,8 @@ export function CompareClient() {
   return (
     <main className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6">
       <div className="mb-5">
-        <h1 className="font-display text-2xl font-bold tracking-tight">Compare</h1>
-        <p className="text-sm text-[var(--fg-muted)]">Normalized performance, rebased to the period start.</p>
+        <h1 className="font-display text-2xl font-bold tracking-tight">השוואה</h1>
+        <p className="text-sm text-[var(--fg-muted)]">ביצועים מנורמלים, מבוססים מחדש לתחילת התקופה.</p>
       </div>
 
       {/* Controls: add box (with autocomplete) + active chips */}
@@ -83,11 +83,11 @@ export function CompareClient() {
           <SymbolAutocomplete
             onSelect={(s) => setSymbols([...symbols, s])}
             disabled={symbols.length >= MAX}
-            placeholder={symbols.length >= MAX ? `Max ${MAX} symbols` : "Add symbol — AAPL, BTC, GC=F…"}
+            placeholder={symbols.length >= MAX ? `מקסימום ${MAX} סמלים` : "הוסף סמל — AAPL, BTC, GC=F…"}
             className="w-full sm:w-72"
           />
           <span className="text-xs" style={{ color: "var(--fg-dim)" }}>
-            {symbols.length}/{MAX} symbols
+            <span className="font-mono-num">{symbols.length}/{MAX}</span> סמלים
           </span>
         </div>
 
@@ -106,7 +106,7 @@ export function CompareClient() {
               >
                 <span className="h-2.5 w-2.5 rounded-full" style={{ background: PALETTE[i % PALETTE.length] }} />
                 {s}
-                <button onClick={() => setSymbols(symbols.filter((x) => x !== s))} aria-label={`Remove ${s}`}>
+                <button onClick={() => setSymbols(symbols.filter((x) => x !== s))} aria-label={`הסר ${s}`}>
                   <X size={14} style={{ color: "var(--fg-dim)" }} />
                 </button>
               </motion.span>
@@ -118,7 +118,7 @@ export function CompareClient() {
               className="rounded-lg border px-2.5 py-1.5 text-sm font-medium text-[var(--fg-muted)] transition-colors hover:text-[var(--fg)]"
               style={{ borderColor: "var(--border)" }}
             >
-              Load example set
+              טען סט לדוגמה
             </button>
           )}
         </div>
@@ -128,7 +128,7 @@ export function CompareClient() {
       <section className="panel p-5">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--fg-muted)]">
-            Normalized overlay
+            שכבת ביצועים מנורמלת
           </h2>
           <div className="inline-flex gap-1 rounded-lg border border-[var(--border)] p-0.5">
             {PERIODS.map((p) => {
@@ -166,13 +166,13 @@ export function CompareClient() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[var(--border)] text-left" style={{ color: "var(--fg-muted)" }}>
-                <th className="px-4 py-3 font-medium">Symbol</th>
-                <th className="px-4 py-3 text-right font-medium">Price</th>
-                <th className="px-4 py-3 text-right font-medium">Day</th>
-                <th className="px-4 py-3 text-right font-medium">Week</th>
-                <th className="px-4 py-3 text-right font-medium">Month</th>
-                <th className="px-4 py-3 text-right font-medium">YTD</th>
+              <tr className="border-b border-[var(--border)] text-start" style={{ color: "var(--fg-muted)" }}>
+                <th className="px-4 py-3 font-medium">סמל</th>
+                <th className="px-4 py-3 text-end font-medium">מחיר</th>
+                <th className="px-4 py-3 text-end font-medium">יומי</th>
+                <th className="px-4 py-3 text-end font-medium">שבועי</th>
+                <th className="px-4 py-3 text-end font-medium">חודשי</th>
+                <th className="px-4 py-3 text-end font-medium">מתחילת השנה</th>
               </tr>
             </thead>
             <tbody>
@@ -192,13 +192,13 @@ export function CompareClient() {
                         {q?.display ?? s}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-right font-mono-num">
-                      {q ? formatPrice(q.price, q.currency) : <Skeleton className="ml-auto h-4 w-16" />}
+                    <td className="px-4 py-3 text-end font-mono-num">
+                      {q ? formatPrice(q.price, q.currency) : <Skeleton className="ms-auto h-4 w-16" />}
                     </td>
                     {cells.map(([label, v]) => (
-                      <td key={label} className="px-4 py-3 text-right font-mono-num">
+                      <td key={label} className="px-4 py-3 text-end font-mono-num">
                         {v == null ? (
-                          <Skeleton className="ml-auto h-4 w-12" />
+                          <Skeleton className="ms-auto h-4 w-12" />
                         ) : (
                           <span
                             style={{
@@ -220,7 +220,7 @@ export function CompareClient() {
       </section>
 
       <p className="mt-6 text-center text-xs" style={{ color: "var(--fg-dim)" }}>
-        Overlay rebased to each series&apos; first close over {period} · Yahoo Finance · not financial advice.
+        השכבה מבוססת מחדש לסגירה הראשונה של כל סדרה לאורך <span className="font-mono-num">{period}</span> · Yahoo Finance · אינו ייעוץ השקעות.
       </p>
     </main>
   );

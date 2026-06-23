@@ -123,9 +123,20 @@ html {
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  /* Heebo is the site-wide Hebrew face; Geist follows for any Latin runs. */
+  font-family: var(--font-he), var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* Numbers, signs, %, currency and TICKERS stay Western/LTR site-wide so an RTL
+   page never reorders "-3.2%", "$1,234" or "AAPL". */
+[dir="rtl"] .font-mono-num {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+[dir="rtl"] [data-flip-rtl] {
+  transform: scaleX(-1);
 }
 
 /* ---------- Hebrew / RTL dashboard subtree ---------- */
@@ -156,7 +167,8 @@ body {
 
 /* ---------- Typography ---------- */
 .font-display {
-  font-family: var(--font-display), var(--font-sans), sans-serif;
+  /* Bricolage has no Hebrew glyphs → fall back to Heebo for Hebrew headings. */
+  font-family: var(--font-display), var(--font-he), var(--font-sans), sans-serif;
   letter-spacing: -0.02em;
 }
 .tabular {

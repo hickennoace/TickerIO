@@ -13,11 +13,11 @@ import { DURATION, EASE, fadeUp, staggerContainer } from "@/lib/motion";
 type Tab = "movers" | "sectors" | "crypto" | "commodities" | "range";
 
 const TABS: { key: Tab; label: string; icon: typeof LayoutGrid }[] = [
-  { key: "movers", label: "Movers", icon: Flame },
-  { key: "sectors", label: "Sectors", icon: LayoutGrid },
-  { key: "crypto", label: "Crypto", icon: Bitcoin },
-  { key: "commodities", label: "Commodities", icon: Gem },
-  { key: "range", label: "52-Wk Range", icon: Gauge },
+  { key: "movers", label: "תנועות היום", icon: Flame },
+  { key: "sectors", label: "סקטורים", icon: LayoutGrid },
+  { key: "crypto", label: "קריפטו", icon: Bitcoin },
+  { key: "commodities", label: "סחורות", icon: Gem },
+  { key: "range", label: "טווח 52 שבועות", icon: Gauge },
 ];
 
 export function MarketsClient() {
@@ -27,9 +27,9 @@ export function MarketsClient() {
   return (
     <main className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6">
       <div className="mb-5">
-        <h1 className="font-display text-2xl font-bold tracking-tight">Market Leaders</h1>
+        <h1 className="font-display text-2xl font-bold tracking-tight">מובילי השוק</h1>
         <p className="text-sm text-[var(--fg-muted)]">
-          Who&apos;s leading today — across sectors, crypto, and commodities.
+          מי מוביל היום — על פני סקטורים, קריפטו וסחורות.
         </p>
       </div>
 
@@ -81,9 +81,9 @@ export function MarketsClient() {
           {tab === "crypto" && (
             <div className="panel p-4">
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="font-display text-lg font-bold">Leading coins</h2>
+                <h2 className="font-display text-lg font-bold">המטבעות המובילים</h2>
                 <span className="text-xs" style={{ color: "var(--fg-dim)" }}>
-                  top coins ranked by today&apos;s move
+                  המטבעות הבולטים מדורגים לפי התנועה היומית
                 </span>
               </div>
               <RankedQuotes cacheKey="crypto-leaders" symbols={CRYPTO_LEADERS} />
@@ -113,7 +113,7 @@ export function MarketsClient() {
       </AnimatePresence>
 
       <p className="mt-8 text-center text-xs" style={{ color: "var(--fg-dim)" }}>
-        Curated large-cap universe · ranked by today&apos;s % change · Yahoo Finance · not financial advice.
+        יקום מניות גדולות נבחר · מדורג לפי השינוי היומי ב‑% · Yahoo Finance · אינו ייעוץ השקעות.
       </p>
     </main>
   );

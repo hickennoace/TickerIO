@@ -4,15 +4,15 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { CompareClient } from "@/components/compare/CompareClient";
 
 export const metadata: Metadata = {
-  title: "Compare — TickerIO",
-  description: "Compare normalized performance across stocks, crypto, and forex.",
+  title: "השוואה — TickerIO",
+  description: "השוואת ביצועים מנורמלים בין מניות, קריפטו ומט\"ח.",
 };
 
 export default function ComparePage() {
   return (
     <>
       <SiteHeader />
-      <Suspense fallback={<div className="p-8 text-sm text-[var(--fg-dim)]">Loading compare…</div>}>
+      <Suspense fallback={<div className="p-8 text-sm text-[var(--fg-dim)]">טוען השוואה…</div>}>
         <CompareClient />
       </Suspense>
     </>

@@ -41,8 +41,8 @@ export default function Home() {
       </div>
 
       <footer className="border-t border-[var(--border)] py-6 text-center text-xs text-[var(--fg-dim)]">
-        Data: Yahoo Finance · CoinDesk · FXStreet · Alternative.me · Forex Factory · TradingView.
-        Analysis only, not financial advice.
+        נתונים: Yahoo Finance · CoinDesk · FXStreet · Alternative.me · Forex Factory · TradingView.
+        לצורכי ניתוח בלבד, אינו ייעוץ השקעות.
       </footer>
     </main>
   );

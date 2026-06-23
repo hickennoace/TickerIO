@@ -14,7 +14,7 @@ import type { SearchHit } from "@/lib/api";
  */
 export function SymbolAutocomplete({
   onSelect,
-  placeholder = "Add symbol — AAPL, BTC, GC=F…",
+  placeholder = "הוסף סימול — AAPL, BTC, GC=F…",
   disabled = false,
   autoFocus = false,
   clearOnSelect = true,
@@ -70,7 +70,7 @@ export function SymbolAutocomplete({
     <div className={`relative ${className}`}>
       <Search
         size={16}
-        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
+        className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2"
         style={{ color: "var(--fg-dim)" }}
       />
       <input
@@ -90,7 +90,7 @@ export function SymbolAutocomplete({
         placeholder={placeholder}
         spellCheck={false}
         autoComplete="off"
-        className="w-full rounded-lg border bg-[var(--panel)] py-2.5 pl-9 pr-3 text-sm font-medium text-[var(--fg)] outline-none transition-colors placeholder:text-[var(--fg-dim)] focus:border-[var(--accent)] disabled:opacity-50"
+        className="w-full rounded-lg border bg-[var(--panel)] py-2.5 ps-9 pe-3 text-sm font-medium text-[var(--fg)] outline-none transition-colors placeholder:text-[var(--fg-dim)] focus:border-[var(--accent)] disabled:opacity-50"
       />
 
       <AnimatePresence>
@@ -110,7 +110,7 @@ export function SymbolAutocomplete({
                   type="button"
                   onMouseEnter={() => setActive(i)}
                   onClick={() => choose(hit.symbol)}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors"
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-start transition-colors"
                   style={{ background: i === active ? "var(--panel-2)" : "transparent" }}
                 >
                   <TrendingUp size={15} style={{ color: "var(--accent)" }} />

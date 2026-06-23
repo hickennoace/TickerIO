@@ -39,18 +39,18 @@ export function WatchlistClient() {
     <main className="mx-auto w-full max-w-[1400px] px-4 py-8 sm:px-6">
       <div className="mb-6 flex items-center gap-3">
         <Star size={22} style={{ color: "var(--warn)" }} fill="var(--warn)" />
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">Watchlist</h1>
+        <h1 className="font-display text-3xl font-extrabold tracking-tight">רשימת מעקב</h1>
         <span className="text-sm" style={{ color: "var(--fg-dim)" }}>
-          {symbols.length} {symbols.length === 1 ? "symbol" : "symbols"} · live
+          <span className="font-mono-num">{symbols.length}</span> {symbols.length === 1 ? "סמל" : "סמלים"} · בזמן אמת
         </span>
       </div>
 
       {symbols.length === 0 ? (
         <div className="panel p-10 text-center">
           <Star size={36} className="mx-auto mb-4" style={{ color: "var(--fg-dim)" }} />
-          <h2 className="font-display text-xl font-bold">Your watchlist is empty</h2>
+          <h2 className="font-display text-xl font-bold">רשימת המעקב ריקה</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-[var(--fg-muted)]">
-            Search a ticker and tap the star to track it here. Quick add:
+            חפשו סמל ולחצו על הכוכב כדי לעקוב אחריו כאן. הוספה מהירה:
           </p>
           <div className="mx-auto mt-5 max-w-md">
             <TickerSearch size="lg" />
@@ -80,8 +80,8 @@ export function WatchlistClient() {
               <div key={s} className="panel panel-hover group relative p-5">
                 <button
                   onClick={() => remove(s)}
-                  className="absolute right-3 top-3 z-10 grid h-7 w-7 place-items-center rounded-md opacity-0 transition-opacity hover:bg-[var(--panel-2)] group-hover:opacity-100"
-                  aria-label={`Remove ${s}`}
+                  className="absolute end-3 top-3 z-10 grid h-7 w-7 place-items-center rounded-md opacity-0 transition-opacity hover:bg-[var(--panel-2)] group-hover:opacity-100"
+                  aria-label={`הסר ${s}`}
                 >
                   <X size={15} style={{ color: "var(--fg-dim)" }} />
                 </button>

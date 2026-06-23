@@ -58,8 +58,13 @@ function RangeRow({ r, tone, metric, reduce }: { r: Ranged; tone: string; metric
         <span className="hidden min-w-0 flex-1 truncate text-sm sm:block" style={{ color: "var(--fg-muted)" }}>
           {r.q.name}
         </span>
-        {/* 52-week range track with the current price marked. */}
-        <div className="relative h-1.5 w-24 shrink-0 rounded-full sm:w-28" style={{ background: "var(--border)" }}>
+        {/* 52-week range track with the current price marked. Kept LTR so the 52w
+            low stays on the left and the high on the right regardless of page dir. */}
+        <div
+          dir="ltr"
+          className="relative h-1.5 w-24 shrink-0 rounded-full sm:w-28"
+          style={{ background: "var(--border)" }}
+        >
           <motion.span
             className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2"
             style={{ background: tone, ["--tw-ring-color" as string]: "var(--panel)" }}
@@ -68,10 +73,10 @@ function RangeRow({ r, tone, metric, reduce }: { r: Ranged; tone: string; metric
             transition={{ duration: DURATION.slow, ease: EASE }}
           />
         </div>
-        <span className="w-20 shrink-0 text-right font-mono-num text-sm">
+        <span className="w-20 shrink-0 text-end font-mono-num text-sm">
           {formatPrice(r.q.price, r.q.currency)}
         </span>
-        <span className="w-24 shrink-0 text-right font-mono-num text-xs font-semibold" style={{ color: tone }}>
+        <span className="w-24 shrink-0 text-end font-mono-num text-xs font-semibold" style={{ color: tone }}>
           {metric}
         </span>
       </Link>
@@ -107,7 +112,7 @@ function Column({
       </p>
       {rows.length === 0 ? (
         <p className="px-3 py-6 text-center text-sm" style={{ color: "var(--fg-dim)" }}>
-          No data available right now.
+          אין נתונים זמינים כרגע.
         </p>
       ) : (
         <motion.div
@@ -164,21 +169,21 @@ export function RangeScanBoard() {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Column
-        title="Near 52-Week Highs"
-        subtitle="Breakout watch — pressing the top of the range"
+        title="קרובות לשיא 52 שבועות"
+        subtitle="מועמדות לפריצה — נצמדות לראש הטווח"
         icon={ArrowUpToLine}
         tone="var(--up)"
         rows={nearHighs}
-        metricFor={(r) => `${r.pctBelowHigh < 0.05 ? "at high" : `−${r.pctBelowHigh.toFixed(1)}%`}`}
+        metricFor={(r) => `${r.pctBelowHigh < 0.05 ? "בשיא" : `−${r.pctBelowHigh.toFixed(1)}%`}`}
         reduce={reduce}
       />
       <Column
-        title="Near 52-Week Lows"
-        subtitle="Pressing the bottom of the range"
+        title="קרובות לשפל 52 שבועות"
+        subtitle="נצמדות לתחתית הטווח"
         icon={ArrowDownToLine}
         tone="var(--down)"
         rows={nearLows}
-        metricFor={(r) => `${r.pctAboveLow < 0.05 ? "at low" : `+${r.pctAboveLow.toFixed(1)}%`}`}
+        metricFor={(r) => `${r.pctAboveLow < 0.05 ? "בשפל" : `+${r.pctAboveLow.toFixed(1)}%`}`}
         reduce={reduce}
       />
     </div>
