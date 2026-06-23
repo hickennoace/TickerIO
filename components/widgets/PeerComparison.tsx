@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Users } from "lucide-react";
 import type { PeersResponse, PeerRow } from "@/lib/api";
 import { UI } from "@/lib/i18n/he";
 import { WidgetCard } from "./WidgetCard";
