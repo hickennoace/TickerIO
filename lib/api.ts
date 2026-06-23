@@ -180,6 +180,26 @@ export interface PeersResponse {
 export const fetchPeers = (symbol: string) =>
   get<PeersResponse>(`/api/peers?symbol=${encodeURIComponent(symbol)}`);
 
+// ---- Fundamental screener ----
+export interface ScreenerRow {
+  symbol: string;
+  composite: number | null;
+  profitability: number | null;
+  valuation: number | null;
+  cashFlow: number | null;
+  pe: number | null;
+  netMarginPct: number | null;
+  revenueGrowthPct: number | null;
+  dividendYieldPct: number | null;
+}
+
+export interface ScreenerResponse {
+  rows: ScreenerRow[];
+  asOf: string;
+}
+
+export const fetchScreener = () => get<ScreenerResponse>(`/api/screener`);
+
 export const fetchCalendar = () =>
   get<{ events: CalendarEvent[]; source: string; asOf: string }>(`/api/calendar`);
 

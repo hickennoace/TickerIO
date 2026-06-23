@@ -38,6 +38,9 @@ export function SiteHeader({ showSearch = true }: { showSearch?: boolean }) {
             <Link href="/markets" className="transition-colors hover:text-[var(--fg)]">
               מובילים
             </Link>
+            <Link href="/screen" className="transition-colors hover:text-[var(--fg)]">
+              סקרינר
+            </Link>
             <Link href="/watchlist" className="transition-colors hover:text-[var(--fg)]">
               רשימת מעקב
             </Link>

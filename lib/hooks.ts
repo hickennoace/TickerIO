@@ -10,6 +10,7 @@ import {
   fetchCandles,
   fetchFundamentals,
   fetchPeers,
+  fetchScreener,
   fetchNews,
   fetchProfile,
   fetchQuote,
@@ -160,6 +161,11 @@ export function usePeers(symbol: string, enabled = true) {
     staleTime: 3_600_000,
     retry: 1,
   });
+}
+
+/** Fundamental screener — the scored equity universe. */
+export function useScreener() {
+  return useQuery({ queryKey: ["screener"], queryFn: fetchScreener, staleTime: 3_600_000, retry: 1 });
 }
 
 export function useProfile(symbol: string) {
