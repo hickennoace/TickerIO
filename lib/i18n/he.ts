@@ -95,6 +95,8 @@ export const METRIC: Record<string, { label: string; hint: string }> = {
   debtToEquity: { label: "יחס חוב להון (D/E)", hint: "היקף החוב ביחס להון העצמי; גבוה מצביע על מינוף ועל רגישות לעליית ריבית." },
   currentRatio: { label: "יחס שוטף", hint: "נכסים שוטפים חלקי התחייבויות שוטפות; מעל 1 מצביע על יכולת לעמוד בהתחייבויות הקרובות." },
   quickRatio: { label: "יחס מהיר", hint: "כמו היחס השוטף אך ללא מלאי; מבחן נזילות מחמיר יותר." },
+  netDebtEbitda: { label: "חוב נטו / EBITDA", hint: "כמה שנות רווח תפעולי (לפני פחת) נדרשות לכיסוי החוב נטו; נמוך מ-3 נחשב בריא, שלילי = מזומן נטו." },
+  interestCoverage: { label: "כיסוי ריבית", hint: "הרווח התפעולי (EBIT) חלקי הוצאות הריבית; גבוה יותר = יכולת נוחה יותר לשרת את החוב." },
 
   // Growth / forward
   revenueGrowth: { label: "צמיחת הכנסות", hint: "קצב הגידול במחזור ביחס לתקופה המקבילה; מנוע הצמיחה המרכזי." },
@@ -179,6 +181,11 @@ export const UI = {
   peersPercentile: "דירוג מול הסקטור",
   peersEmpty: "אין סט מתחרים זמין לנייר זה.",
   peerComposite: "ציון כולל",
+  earnings: "דוחות קרובים",
+  nextEarnings: "מועד הדוחות הבא",
+  earningsEstimate: "(משוער)",
+  beatMissHistory: "הפתעות רווח אחרונות",
+  inDays: (n: number) => (n === 0 ? "היום" : n === 1 ? "מחר" : `בעוד ${n} ימים`),
 
   // Fundamentals specifics
   partialData: "נתונים חלקיים",

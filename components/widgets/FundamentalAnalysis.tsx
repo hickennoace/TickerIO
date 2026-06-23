@@ -1,9 +1,46 @@
 "use client";
 
 import { motion } from "motion/react";
-import { TrendingUp, Coins, Wallet, ShieldCheck, Newspaper, LineChart, Scale } from "lucide-react";
-import type { FundamentalsResponse, FundPillar, FundMetric, FundBand, FundTrends, FundFairValue } from "@/lib/api";
+import { TrendingUp, Coins, Wallet, ShieldCheck, Newspaper, LineChart, Scale, CalendarClock } from "lucide-react";
+import type { FundamentalsResponse, FundPillar, FundMetric, FundBand, FundTrends, FundFairValue, FundEarnings } from "@/lib/api";
 import { UI, marginDirectionHe } from "@/lib/i18n/he";
+
+function EarningsSection({ e }: { e: FundEarnings }) {
+  return (
+    <div className="mt-4 rounded-[var(--radius-sm)] border border-[var(--border)] p-4">
+      <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--fg)]">
+        <CalendarClock size={15} style={{ color: "var(--fg-muted)" }} /> {UI.earnings}
+      </h4>
+      {e.nextDateText && (
+        <div className="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <span className="text-[11px]" style={{ color: "var(--fg-dim)" }}>{UI.nextEarnings}</span>
+          <span className="text-sm font-semibold text-[var(--fg)]">{e.nextDateText}</span>
+          {e.daysUntil != null && e.daysUntil >= 0 && (
+            <span className="rounded-md px-2 py-0.5 text-xs font-semibold" style={{ color: "var(--accent)", background: "var(--panel-2)" }}>
+              {UI.inDays(e.daysUntil)}{e.isEstimate ? ` ${UI.earningsEstimate}` : ""}
+            </span>
+          )}
+        </div>
+      )}
+      {e.surprisesPct.length > 0 && (
+        <>
+          <p className="mb-1.5 text-[11px]" style={{ color: "var(--fg-dim)" }}>{UI.beatMissHistory}</p>
+          <div dir="ltr" className="flex flex-wrap gap-1.5">
+            {e.surprisesPct.map((s, i) => (
+              <span
+                key={i}
+                className="font-mono-num rounded px-1.5 py-0.5 text-xs font-semibold"
+                style={{ color: s >= 0 ? "var(--up)" : "var(--down)", background: "var(--panel-2)" }}
+              >
+                {s > 0 ? "+" : ""}{s}%
+              </span>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 import { WidgetCard } from "./WidgetCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -289,9 +326,10 @@ export function FundamentalAnalysis({ data, loading }: { data?: FundamentalsResp
         {data.pillars.map((p) => <PillarBlock key={p.key} p={p} />)}
       </div>
 
-      {/* Multi-period trends + DCF fair value */}
+      {/* Multi-period trends + DCF fair value + earnings calendar */}
       {data.trends && <TrendsSection trends={data.trends} />}
       {data.fairValue && <FairValueSection fv={data.fairValue} />}
+      {data.earnings && <EarningsSection e={data.earnings} />}
 
       {/* Section 5 — news fundamental analysis */}
       <NewsImpact news={data.news} />

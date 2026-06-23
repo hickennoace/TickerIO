@@ -327,6 +327,33 @@ async function build(symbolInput: string): Promise<FundamentalsResponse> {
       }
     : null;
 
+  // Pro-grade balance-sheet quality metrics (display + LLM context, not scored).
+  const netDebtEbitda =
+    !degraded && has(f.totalDebt) && has(f.totalCash) && has(f.ebitda) && f.ebitda > 0
+      ? (f.totalDebt - f.totalCash) / f.ebitda
+      : null;
+  const interestCoverage =
+    !degraded && history && has(history.latestEbit) && has(history.latestInterestExpense) && Math.abs(history.latestInterestExpense) > 0
+      ? history.latestEbit / Math.abs(history.latestInterestExpense)
+      : null;
+  const proRows: FundMetric[] = [
+    netDebtEbitda != null ? row("netDebtEbitda", `פי ${netDebtEbitda.toFixed(1)}`, netDebtEbitda <= 3 ? "up" : "down") : null,
+    interestCoverage != null ? row("interestCoverage", `פי ${interestCoverage.toFixed(1)}`, interestCoverage >= 3 ? "up" : "down") : null,
+  ].filter(Boolean) as FundMetric[];
+
+  // Earnings calendar + recent beat/miss.
+  const eInfo = degraded ? null : history?.earnings ?? null;
+  const earnings = eInfo
+    ? {
+        nextDateText: eInfo.nextDateMs
+          ? new Date(eInfo.nextDateMs).toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" })
+          : null,
+        daysUntil: eInfo.nextDateMs ? Math.round((eInfo.nextDateMs - Date.now()) / 86_400_000) : null,
+        isEstimate: eInfo.isEstimate,
+        surprisesPct: eInfo.surprises.map((s) => Math.round(s * 1000) / 10),
+      }
+    : null;
+
   const composite = degraded
     ? { score: null as number | null, word: null as string | null }
     : { score: scores.composite.score, word: scores.composite.band ? BAND_HE[scores.composite.band].word : null };
@@ -406,7 +433,7 @@ async function build(symbolInput: string): Promise<FundamentalsResponse> {
         score: sfScore,
         ...(() => { const { band, word } = pillarBand(sfScore); return { band, bandWord: word }; })(),
         verdict: pick(llm?.value.pillars?.financialStrength) ?? pillarVerdictFallback("strength", f, scores.strength),
-        metrics: strengthForwardMetrics(f),
+        metrics: [...strengthForwardMetrics(f), ...proRows],
         notes: [...scores.strength.notes, ...scores.growth.notes],
       },
     ];
@@ -438,6 +465,7 @@ async function build(symbolInput: string): Promise<FundamentalsResponse> {
     marketRead,
     trends,
     fairValue,
+    earnings,
     news: { lean, label: LEAN_HE[lean].label, text: newsText },
     generatedBy,
     asOf: new Date().toISOString(),

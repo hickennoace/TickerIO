@@ -128,6 +128,14 @@ export interface FundFairValue {
   discountRatePct: number;
 }
 
+export interface FundEarnings {
+  nextDateText: string | null;
+  daysUntil: number | null;
+  isEstimate: boolean;
+  /** Recent quarterly EPS surprises as percentages (signed). */
+  surprisesPct: number[];
+}
+
 export interface FundamentalsResponse {
   symbol: string;
   display: string;
@@ -141,6 +149,7 @@ export interface FundamentalsResponse {
   marketRead: FundMetric[];
   trends: FundTrends | null;
   fairValue: FundFairValue | null;
+  earnings: FundEarnings | null;
   news: { lean: "Bullish" | "Bearish" | "Neutral"; label: string; text: string };
   generatedBy: string;
   asOf: string;
