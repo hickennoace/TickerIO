@@ -86,19 +86,51 @@ export async function fetchArticleSummary(
   return json as ArticleSummaryResponse;
 }
 
-export interface AiSummaryResponse {
-  summary: string;
-  sentiment: "Bearish" | "Neutral" | "Bullish";
-  generatedBy: string;
-  disclaimer: string;
-  asOf: string;
-}
-export const fetchAiSummary = (symbol: string) =>
-  get<AiSummaryResponse>(`/api/ai-summary?symbol=${encodeURIComponent(symbol)}`);
-
 export type AssetProfileResponse = AssetProfile & { stale?: boolean };
 export const fetchProfile = (symbol: string) =>
   get<AssetProfileResponse>(`/api/profile?symbol=${encodeURIComponent(symbol)}`);
+
+// ---- Fundamental analysis (Hebrew) ----
+export type FundBand = "excellent" | "good" | "fair" | "weak" | "poor";
+
+export interface FundMetric {
+  id: string;
+  label: string;
+  value: string;
+  hint: string;
+  /** Optional tint for signed values (growth/upside). */
+  tone?: "up" | "down";
+}
+
+export interface FundPillar {
+  key: string;
+  title: string;
+  score: number | null;
+  band: FundBand | null;
+  bandWord: string | null;
+  verdict: string;
+  metrics: FundMetric[];
+  notes: string[];
+}
+
+export interface FundamentalsResponse {
+  symbol: string;
+  display: string;
+  /** True for crypto/forex/index — no company financials, market+news read only. */
+  degraded: boolean;
+  composite: number | null;
+  compositeBand: FundBand | null;
+  compositeWord: string | null;
+  overview: string;
+  pillars: FundPillar[];
+  marketRead: FundMetric[];
+  news: { lean: "Bullish" | "Bearish" | "Neutral"; label: string; text: string };
+  generatedBy: string;
+  asOf: string;
+}
+
+export const fetchFundamentals = (symbol: string) =>
+  get<FundamentalsResponse>(`/api/fundamentals?symbol=${encodeURIComponent(symbol)}`);
 
 export const fetchCalendar = () =>
   get<{ events: CalendarEvent[]; source: string; asOf: string }>(`/api/calendar`);

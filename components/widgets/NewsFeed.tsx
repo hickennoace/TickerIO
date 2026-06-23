@@ -4,18 +4,11 @@ import { useState } from "react";
 import { CalendarClock, ChevronDown, ExternalLink, Sparkles } from "lucide-react";
 import type { NewsItem } from "@/lib/types";
 import { useArticleSummary } from "@/lib/hooks";
+import { UI, relTimeHe } from "@/lib/i18n/he";
 import { WidgetCard } from "./WidgetCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
-/** Relative time that handles both past articles and future events. */
-function rel(iso: string): string {
-  const diff = new Date(iso).getTime() - Date.now();
-  const future = diff > 0;
-  const m = Math.round(Math.abs(diff) / 60000);
-  const fmt =
-    m < 60 ? `${m}m` : m < 1440 ? `${Math.floor(m / 60)}h` : `${Math.floor(m / 1440)}d`;
-  return future ? `in ${fmt}` : `${fmt} ago`;
-}
+const rel = relTimeHe;
 
 function impactColor(impact?: NewsItem["impact"]): string {
   return impact === "High" ? "var(--down)" : impact === "Medium" ? "var(--warn)" : "var(--accent)";
@@ -33,16 +26,16 @@ function ArticleSummary({ symbol, item }: { symbol: string; item: NewsItem }) {
   const { data, isLoading, isError } = useArticleSummary(symbol, item, true);
   return (
     <div
-      className="ml-5 mt-1 rounded-xl border p-3"
+      className="ms-5 mt-1 rounded-xl border p-3"
       style={{ borderColor: "var(--border)", background: "var(--panel-2)" }}
     >
       <div className="mb-1.5 flex items-center gap-1.5">
         <Sparkles size={12} style={{ color: "var(--accent)" }} />
         <span
-          className="text-[10px] font-semibold uppercase tracking-wider"
+          className="text-[10px] font-semibold tracking-wider"
           style={{ color: "var(--fg-muted)" }}
         >
-          The context behind this
+          {UI.contextBehind}
         </span>
       </div>
       {isLoading ? (
@@ -53,13 +46,13 @@ function ArticleSummary({ symbol, item }: { symbol: string; item: NewsItem }) {
         </div>
       ) : isError || !data || data.generatedBy === "unavailable" ? (
         <p className="text-[13px]" style={{ color: "var(--fg-dim)" }}>
-          {data?.summary ?? "Couldn't summarize this story right now."}
+          {data?.summary ?? UI.couldntSummarize}
         </p>
       ) : (
         <>
           <p className="text-[13px] leading-relaxed text-[var(--fg)]">{data.summary}</p>
           <p className="mt-2 text-[10px]" style={{ color: "var(--fg-dim)" }}>
-            Context summary · {data.generatedBy} · not financial advice
+            {UI.notAdviceShort} · {data.generatedBy}
           </p>
         </>
       )}
@@ -95,7 +88,7 @@ function NewsRow({ symbol, item }: { symbol: string; item: NewsItem }) {
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
-          aria-label={open ? "Hide summary" : "Summarize this story"}
+          aria-label={open ? "הסתר סיכום" : "סכם את הכתבה"}
           className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg border transition-colors hover:bg-[var(--panel)]"
           style={{ borderColor: "var(--border)", color: "var(--fg-muted)" }}
         >
@@ -124,10 +117,10 @@ function EventRow({ item }: { item: NewsItem }) {
         <div className="min-w-0 flex-1">
           <p className="text-sm leading-snug text-[var(--fg)] group-hover:text-white">
             <span
-              className="mr-1.5 rounded px-1 py-0.5 text-[10px] font-semibold uppercase"
+              className="me-1.5 rounded px-1 py-0.5 text-[10px] font-semibold"
               style={{ color: impactColor(item.impact), background: "var(--panel-2)" }}
             >
-              Event
+              {UI.event}
             </span>
             {item.headline}
           </p>
@@ -154,7 +147,7 @@ export function NewsFeed({
 }) {
   return (
     <WidgetCard
-      title="Latest News"
+      title={UI.latestNews}
       action={
         sources && sources.length ? (
           <span className="text-[11px]" style={{ color: "var(--fg-dim)" }}>
@@ -171,7 +164,7 @@ export function NewsFeed({
         </div>
       ) : !items || items.length === 0 ? (
         <p className="text-sm" style={{ color: "var(--fg-dim)" }}>
-          No recent headlines for this symbol.
+          {UI.noNews}
         </p>
       ) : (
         <ul className="space-y-1">
@@ -186,7 +179,7 @@ export function NewsFeed({
       )}
 
       <p className="mt-3 text-[11px]" style={{ color: "var(--fg-dim)" }}>
-        Tap the ⌄ on any headline to summarize the story behind it.
+        {UI.tapToSummarize}
       </p>
     </WidgetCard>
   );

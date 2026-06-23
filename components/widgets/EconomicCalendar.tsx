@@ -1,6 +1,7 @@
 "use client";
 
 import type { CalendarEvent } from "@/lib/types";
+import { UI, impactHe } from "@/lib/i18n/he";
 import { WidgetCard } from "./WidgetCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -11,7 +12,7 @@ function impactColor(impact: CalendarEvent["impact"]): string {
 function when(date: string): string {
   const d = new Date(date);
   if (isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" });
+  return d.toLocaleDateString("he-IL", { weekday: "short", hour: "numeric", minute: "2-digit" });
 }
 
 export function EconomicCalendar({
@@ -29,7 +30,7 @@ export function EconomicCalendar({
 
   return (
     <WidgetCard
-      title="Event Risk"
+      title={UI.eventRisk}
       action={source ? <span className="text-[11px]" style={{ color: "var(--fg-dim)" }}>{source}</span> : null}
     >
       {loading ? (
@@ -40,7 +41,7 @@ export function EconomicCalendar({
         </div>
       ) : upcoming.length === 0 ? (
         <p className="text-sm" style={{ color: "var(--fg-dim)" }}>
-          No high-impact events left this week.
+          {UI.noEvents}
         </p>
       ) : (
         <ul className="space-y-2.5">
@@ -49,7 +50,7 @@ export function EconomicCalendar({
               <span
                 className="h-1.5 w-1.5 shrink-0 rounded-full"
                 style={{ background: impactColor(e.impact) }}
-                title={`${e.impact} impact`}
+                title={impactHe(e.impact)}
               />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm text-[var(--fg)]">
@@ -67,7 +68,7 @@ export function EconomicCalendar({
         </ul>
       )}
       <p className="mt-3 text-[11px]" style={{ color: "var(--fg-dim)" }}>
-        High-impact macro events move every market.
+        {UI.eventHelper}
       </p>
     </WidgetCard>
   );

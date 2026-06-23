@@ -9,7 +9,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { ticker } = await params;
   const symbol = decodeURIComponent(ticker).toUpperCase();
-  return { title: `${symbol} — TickerIO` };
+  return { title: `${symbol} — ניתוח פונדמנטלי | TickerIO` };
 }
 
 export default async function DashboardPage({

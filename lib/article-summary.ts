@@ -14,7 +14,7 @@ export interface ArticleSummary {
 }
 
 const UNAVAILABLE: ArticleSummary = {
-  summary: "No additional context is available for this story yet.",
+  summary: "אין הקשר נוסף זמין לכתבה זו עדיין.",
   generatedBy: "unavailable",
 };
 
@@ -70,10 +70,11 @@ export async function summarizeArticle(
 
   const prompt =
     `You are explaining a ${symbol} news story to a reader who has only seen the headline. ` +
-    `In 2-3 complete sentences (about 50-70 words total), explain the substance and context ` +
-    `BEHIND it: what is actually happening, the key facts, and why it matters. Keep it concise ` +
-    `enough to finish every sentence. Do NOT simply restate the headline, and give no buy/sell ` +
-    `advice or sentiment labels. No preamble.\n\n` +
+    `Answer IN HEBREW, in professional modern Hebrew (Israeli financial-press register). ` +
+    `In 2-3 complete Hebrew sentences (about 45-65 words), explain the substance and context ` +
+    `BEHIND the story: what is actually happening, the key facts, and why it matters fundamentally. ` +
+    `Keep finance acronyms in English (P/E, EBITDA) and keep the ticker as-is; numbers stay as digits. ` +
+    `Do NOT simply restate the headline, and give no buy/sell advice or sentiment labels. No preamble.\n\n` +
     `Headline: ${headline}\n\nArticle:\n${context.slice(0, 2400)}`;
 
   // 512-token cap leaves ample room for 2-3 sentences; completeSentence() trims
@@ -87,6 +88,6 @@ export async function summarizeArticle(
   // No LLM → the article's own lead is the honest "context behind it", but only
   // if it reads as real prose. Never surface a one-word chrome fragment.
   const lead = leadSentences(context);
-  if (isMeaningful(lead)) return { summary: lead, generatedBy: "article excerpt" };
+  if (isMeaningful(lead)) return { summary: lead, generatedBy: "תקציר מקור" };
   return UNAVAILABLE;
 }

@@ -8,15 +8,8 @@ import { LivePulse } from "@/components/ui/LivePulse";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { WatchStar } from "@/components/WatchStar";
 import { AlertButton } from "@/components/AlertButton";
+import { UI, assetClassHe, relTimeHe } from "@/lib/i18n/he";
 import { Sparkline } from "./Sparkline";
-
-function relTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const m = Math.round(diff / 60000);
-  if (m < 1) return "just now";
-  if (m < 60) return `${m}m ago`;
-  return `${Math.round(m / 60)}h ago`;
-}
 
 export function PriceHeader({
   quote,
@@ -42,9 +35,9 @@ export function PriceHeader({
   if (error || !quote) {
     return (
       <section className="panel p-6">
-        <h1 className="text-2xl font-bold">Couldn&apos;t load this symbol</h1>
+        <h1 className="text-2xl font-bold">{UI.couldntLoadSymbol}</h1>
         <p className="mt-2 text-sm text-[var(--fg-muted)]">
-          {error ?? "No data returned."} Try another ticker — e.g. AAPL, BTC, EURUSD.
+          {error ?? UI.noData}. {UI.tryAnother}
         </p>
       </section>
     );
@@ -63,17 +56,17 @@ export function PriceHeader({
           <div className="flex items-center gap-3">
             <h1 className="font-display text-4xl font-extrabold tracking-tight">{quote.display}</h1>
             <span
-              className="rounded-md border px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-[var(--fg-muted)]"
+              className="rounded-md border px-2 py-0.5 text-xs font-semibold tracking-wide text-[var(--fg-muted)]"
               style={{ borderColor: "var(--border-strong)" }}
             >
-              {quote.assetClass}
+              {assetClassHe(quote.assetClass)}
             </span>
             {quote.stale ? (
               <span className="text-xs font-semibold" style={{ color: "var(--warn)" }}>
-                delayed
+                {UI.delayed}
               </span>
             ) : (
-              <LivePulse color={color} label="Live" />
+              <LivePulse color={color} label={UI.live} />
             )}
           </div>
           <p className="mt-1 text-sm text-[var(--fg-muted)]">
@@ -87,7 +80,7 @@ export function PriceHeader({
               format={(n) => formatPrice(n, currency)}
               className="font-mono-num text-4xl font-semibold leading-none"
             />
-            <div className="flex items-center gap-2 pb-1" style={{ color }}>
+            <div dir="ltr" className="flex items-center gap-2 pb-1" style={{ color }}>
               <span className="flex items-center gap-1 rounded-md px-2 py-1 text-sm font-semibold tabular" style={{ background: up ? "var(--up-soft)" : "var(--down-soft)" }}>
                 <Icon size={14} strokeWidth={2.5} />
                 {formatPercent(quote.changePct)}
@@ -96,13 +89,15 @@ export function PriceHeader({
             </div>
           </div>
           <p className="mt-2 text-xs" style={{ color: "var(--fg-dim)" }}>
-            vs prev close · {quote.source} · {relTime(quote.asOf)}
+            {UI.vsPrevClose} · {quote.source} · {relTimeHe(quote.asOf)}
           </p>
         </div>
 
-        <div className="ml-auto flex items-center gap-4">
+        <div className="ms-auto flex items-center gap-4">
           {spark.length > 1 ? (
-            <Sparkline data={spark} up={up} width={260} height={64} />
+            <span dir="ltr">
+              <Sparkline data={spark} up={up} width={260} height={64} />
+            </span>
           ) : (
             <Skeleton className="h-16 w-64" />
           )}

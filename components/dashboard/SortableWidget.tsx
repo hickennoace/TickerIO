@@ -22,8 +22,8 @@ export function SortableWidget({ id, children }: { id: string; children: ReactNo
       <button
         {...attributes}
         {...listeners}
-        aria-label="Drag to reorder"
-        className="absolute right-2.5 top-2.5 z-30 grid h-7 w-7 cursor-grab place-items-center rounded-md opacity-0 transition-opacity pointer-events-none group-hover/sortable:pointer-events-auto group-hover/sortable:opacity-100 active:cursor-grabbing"
+        aria-label="גרור לסידור מחדש"
+        className="absolute end-2.5 top-2.5 z-30 grid h-7 w-7 cursor-grab place-items-center rounded-md opacity-0 transition-opacity pointer-events-none group-hover/sortable:pointer-events-auto group-hover/sortable:opacity-100 active:cursor-grabbing"
         style={{ background: "var(--panel-2)", touchAction: "none" }}
       >
         <GripVertical size={14} style={{ color: "var(--fg-dim)" }} />

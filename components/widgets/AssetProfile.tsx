@@ -3,8 +3,16 @@
 import { useState } from "react";
 import { Info, ExternalLink } from "lucide-react";
 import type { AssetProfileResponse } from "@/lib/api";
+import { UI } from "@/lib/i18n/he";
 import { WidgetCard } from "./WidgetCard";
 import { Skeleton } from "@/components/ui/Skeleton";
+
+const META_LABEL: Record<string, string> = {
+  sector: "סקטור",
+  industry: "תעשייה",
+  country: "מדינה",
+  employees: "עובדים",
+};
 
 /** Chars of the summary to show before the "Read more" fold. */
 const CLAMP = 360;
@@ -44,7 +52,7 @@ export function AssetProfileCard({
 
   return (
     <WidgetCard
-      title={`About ${data?.display ?? display}`}
+      title={UI.about(data?.display ?? display)}
       action={
         data?.url ? (
           <a
@@ -53,7 +61,7 @@ export function AssetProfileCard({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--accent)] hover:underline"
           >
-            {data.source === "Wikipedia" ? "Wikipedia" : "Website"}
+            {data.source === "Wikipedia" ? "ויקיפדיה" : "אתר רשמי"}
             <ExternalLink size={12} />
           </a>
         ) : null
@@ -76,7 +84,7 @@ export function AssetProfileCard({
           </div>
         ) : !data ? (
           <p className="flex-1 text-sm text-[var(--fg-muted)]">
-            No overview is available for {display} right now.
+            {UI.noOverview(display)}
           </p>
         ) : (
           <div className="flex-1">
@@ -86,20 +94,20 @@ export function AssetProfileCard({
                 <button
                   type="button"
                   onClick={() => setOpen((v) => !v)}
-                  className="ml-1 font-medium text-[var(--accent)] hover:underline"
+                  className="ms-1 font-medium text-[var(--accent)] hover:underline"
                 >
-                  {open ? "Show less" : "Read more"}
+                  {open ? UI.showLess : UI.readMore}
                 </button>
               )}
             </p>
 
             {(data.sector || data.industry || data.country || data.employees) && (
               <div className="mt-4 grid grid-cols-2 gap-3 border-t border-[var(--border)] pt-3 sm:grid-cols-4">
-                {data.sector && <Meta label="Sector" value={data.sector} />}
-                {data.industry && <Meta label="Industry" value={data.industry} />}
-                {data.country && <Meta label="Country" value={data.country} />}
+                {data.sector && <Meta label={META_LABEL.sector} value={data.sector} />}
+                {data.industry && <Meta label={META_LABEL.industry} value={data.industry} />}
+                {data.country && <Meta label={META_LABEL.country} value={data.country} />}
                 {data.employees && (
-                  <Meta label="Employees" value={data.employees.toLocaleString()} />
+                  <Meta label={META_LABEL.employees} value={data.employees.toLocaleString()} />
                 )}
               </div>
             )}
@@ -111,8 +119,8 @@ export function AssetProfileCard({
         className="mt-4 flex items-center justify-between border-t border-[var(--border)] pt-3 text-[11px]"
         style={{ color: "var(--fg-dim)" }}
       >
-        <span>Reference overview — not financial advice.</span>
-        {data && <span>via {data.source}</span>}
+        <span>{UI.refDisclaimer}</span>
+        {data && <span>{UI.via(data.source)}</span>}
       </p>
     </WidgetCard>
   );

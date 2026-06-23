@@ -30,7 +30,7 @@ export function SiteHeader({ showSearch = true }: { showSearch?: boolean }) {
           </div>
         )}
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ms-auto flex items-center gap-3">
           <nav className="hidden items-center gap-5 text-sm text-[var(--fg-muted)] md:flex">
             <Link href="/" className="transition-colors hover:text-[var(--fg)]">
               Markets

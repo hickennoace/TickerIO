@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import type { TimeframeRow } from "@/lib/types";
 import { direction, formatPercent, formatSignedPrice } from "@/lib/format";
+import { UI, periodLabelHe } from "@/lib/i18n/he";
 import { WidgetCard } from "./WidgetCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -30,15 +31,15 @@ export function TimeframePanel({
 
   return (
     <WidgetCard
-      title="Performance"
+      title={UI.performance}
       action={
         best && worst ? (
           <span className="flex items-center gap-2 text-[11px]" style={{ color: "var(--fg-dim)" }}>
             <span className="flex items-center gap-0.5" style={{ color: "var(--up)" }}>
-              <ArrowUpRight size={11} /> {best.label}
+              <ArrowUpRight size={11} /> {periodLabelHe(best.label)}
             </span>
             <span className="flex items-center gap-0.5" style={{ color: "var(--down)" }}>
-              <ArrowDownRight size={11} /> {worst.label}
+              <ArrowDownRight size={11} /> {periodLabelHe(worst.label)}
             </span>
           </span>
         ) : null
@@ -62,11 +63,11 @@ export function TimeframePanel({
               <div
                 key={tf.label}
                 className="grid grid-cols-[64px_1fr_auto] items-center gap-3"
-                title={`Anchor: ${new Date(tf.anchorAt).toUTCString()} · ${formatSignedPrice(tf.changeAbs, currency)}`}
+                title={`${UI.anchor}: ${new Date(tf.anchorAt).toUTCString()} · ${formatSignedPrice(tf.changeAbs, currency)}`}
               >
                 {/* Label + anchor */}
                 <div className="leading-tight">
-                  <div className="text-sm font-semibold">{tf.label}</div>
+                  <div className="text-sm font-semibold">{periodLabelHe(tf.label)}</div>
                   <div className="text-[10px]" style={{ color: "var(--fg-dim)" }}>
                     {tf.anchor}
                   </div>
@@ -107,7 +108,7 @@ export function TimeframePanel({
         </div>
       )}
       <p className="mt-4 border-t border-[var(--border)] pt-3 text-[11px] leading-relaxed" style={{ color: "var(--fg-dim)" }}>
-        Each move is measured from that period&apos;s <span style={{ color: "var(--fg-muted)" }}>open</span> (UTC) — not a rolling lookback. Bars scale to the largest move shown.
+        {UI.perfHelper}
       </p>
     </WidgetCard>
   );

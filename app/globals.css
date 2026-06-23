@@ -120,6 +120,32 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* ---------- Hebrew / RTL dashboard subtree ---------- */
+/* Heebo takes over the sans/body stack inside the dashboard only. Numerals stay
+   Geist Mono and are bidi-isolated so signs, %, $, / and tickers never reorder. */
+.dash-rtl {
+  --font-sans: var(--font-he);
+  font-family: var(--font-he), var(--font-geist-sans), system-ui, sans-serif;
+}
+.dash-rtl .font-mono-num {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+/* Force-LTR for numeric / signed / percent strings that aren't .font-mono-num. */
+.ltr-num {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+/* Whole-subtree LTR islands (chart, sparkline, marquee, range bars). */
+.ltr-island {
+  direction: ltr;
+}
+/* Mirror only icons explicitly tagged as reading-direction glyphs. */
+.dash-rtl [data-flip-rtl] {
+  transform: scaleX(-1);
+}
+
 /* ---------- Typography ---------- */
 .font-display {
   font-family: var(--font-display), var(--font-sans), sans-serif;

@@ -13,77 +13,22 @@
 
 import { z } from "zod";
 import { fetchJson } from "@/lib/cache";
+import { yahooQuoteSummary } from "@/lib/providers/yahoo-auth";
 import type { AssetProfile } from "@/lib/types";
 import type { ResolvedSymbol } from "@/lib/markets/symbol";
 
-const YAHOO_HOSTS = [
-  "https://query1.finance.yahoo.com",
-  "https://query2.finance.yahoo.com",
-];
-
-const UA =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
-
-// quoteSummary now requires a cookie + crumb. Cache the handshake per warm
-// instance so we do it at most once an hour, then fall back to Wikipedia if
-// Yahoo blocks the datacenter IP.
-let crumbCache: { cookie: string; crumb: string; at: number } | null = null;
-
-async function yahooCrumb(): Promise<{ cookie: string; crumb: string } | null> {
-  if (crumbCache && Date.now() - crumbCache.at < 3_600_000) {
-    return { cookie: crumbCache.cookie, crumb: crumbCache.crumb };
-  }
-  try {
-    // 1) Seed a session cookie (fc.yahoo.com sets A1/A3 even on a 404).
-    const seed = await fetch("https://fc.yahoo.com/", {
-      headers: { "User-Agent": UA, Accept: "text/html,*/*" },
-    });
-    const headers = seed.headers as Headers & { getSetCookie?: () => string[] };
-    const raw =
-      typeof headers.getSetCookie === "function"
-        ? headers.getSetCookie()
-        : [headers.get("set-cookie") ?? ""];
-    const cookie = raw
-      .map((c) => c.split(";")[0])
-      .filter(Boolean)
-      .join("; ");
-    if (!cookie) return null;
-
-    // 2) Exchange the cookie for a crumb.
-    const res = await fetch("https://query1.finance.yahoo.com/v1/test/getcrumb", {
-      headers: { "User-Agent": UA, Cookie: cookie, Accept: "text/plain,*/*" },
-    });
-    const crumb = (await res.text()).trim();
-    if (!crumb || crumb.length > 32 || crumb.includes("<")) return null;
-
-    crumbCache = { cookie, crumb, at: Date.now() };
-    return { cookie, crumb };
-  } catch {
-    return null;
-  }
-}
-
 const assetProfileSchema = z.object({
-  quoteSummary: z.object({
-    result: z
-      .array(
-        z.object({
-          assetProfile: z
-            .object({
-              longBusinessSummary: z.string().optional(),
-              sector: z.string().optional(),
-              industry: z.string().optional(),
-              website: z.string().optional(),
-              country: z.string().optional(),
-              fullTimeEmployees: z.number().optional(),
-            })
-            .passthrough()
-            .optional(),
-        }),
-      )
-      .nullable()
-      .optional(),
-  }),
+  assetProfile: z
+    .object({
+      longBusinessSummary: z.string().optional(),
+      sector: z.string().optional(),
+      industry: z.string().optional(),
+      website: z.string().optional(),
+      country: z.string().optional(),
+      fullTimeEmployees: z.number().optional(),
+    })
+    .passthrough()
+    .optional(),
 });
 
 interface YahooProfile {
@@ -97,31 +42,22 @@ interface YahooProfile {
 
 /** Equity business profile from Yahoo. Returns null on 401/empty so we fall back. */
 async function yahooProfile(symbol: string): Promise<YahooProfile | null> {
-  const auth = await yahooCrumb();
-  if (!auth) return null;
-  const path = `/v10/finance/quoteSummary/${encodeURIComponent(
-    symbol,
-  )}?modules=assetProfile&crumb=${encodeURIComponent(auth.crumb)}`;
-  for (const host of YAHOO_HOSTS) {
-    try {
-      const raw = await fetchJson<unknown>(`${host}${path}`, {
-        headers: { Cookie: auth.cookie },
-      });
-      const p = assetProfileSchema.parse(raw).quoteSummary.result?.[0]?.assetProfile;
-      if (p?.longBusinessSummary) {
-        return {
-          summary: p.longBusinessSummary,
-          sector: p.sector,
-          industry: p.industry,
-          website: p.website,
-          country: p.country,
-          employees: p.fullTimeEmployees,
-        };
-      }
-      return null; // reachable but no profile module → skip the other host
-    } catch {
-      // 401/Invalid Cookie or transient error → try next host, then Wikipedia.
-    }
+  const result = await yahooQuoteSummary(symbol, ["assetProfile"]);
+  if (!result) return null;
+  // Degrade to Wikipedia (return null) on any odd field shape rather than
+  // letting a Zod throw bubble up to a 502 for the whole profile card.
+  const parsed = assetProfileSchema.safeParse(result);
+  if (!parsed.success) return null;
+  const p = parsed.data.assetProfile;
+  if (p?.longBusinessSummary) {
+    return {
+      summary: p.longBusinessSummary,
+      sector: p.sector,
+      industry: p.industry,
+      website: p.website,
+      country: p.country,
+      employees: p.fullTimeEmployees,
+    };
   }
   return null;
 }

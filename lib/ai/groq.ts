@@ -1,6 +1,10 @@
 /** Groq (OpenAI-compatible) text generation fallback. Server-only. */
 
-export async function groqText(prompt: string, maxTokens = 220): Promise<string | null> {
+export async function groqText(
+  prompt: string,
+  maxTokens = 220,
+  opts: { json?: boolean } = {},
+): Promise<string | null> {
   const key = process.env.GROQ_API_KEY;
   if (!key) return null;
   try {
@@ -12,6 +16,7 @@ export async function groqText(prompt: string, maxTokens = 220): Promise<string 
         messages: [{ role: "user", content: prompt }],
         temperature: 0.3,
         max_tokens: maxTokens,
+        ...(opts.json ? { response_format: { type: "json_object" } } : {}),
       }),
       cache: "no-store",
     });

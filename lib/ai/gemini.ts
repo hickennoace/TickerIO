@@ -3,7 +3,11 @@
 
 const MODEL = "gemini-2.5-flash";
 
-export async function geminiText(prompt: string, maxTokens = 220): Promise<string | null> {
+export async function geminiText(
+  prompt: string,
+  maxTokens = 220,
+  opts: { json?: boolean } = {},
+): Promise<string | null> {
   const key = process.env.GEMINI_API_KEY;
   if (!key) return null;
   try {
@@ -19,6 +23,7 @@ export async function geminiText(prompt: string, maxTokens = 220): Promise<strin
             maxOutputTokens: maxTokens,
             // Disable "thinking" so the token budget goes to the answer, not reasoning.
             thinkingConfig: { thinkingBudget: 0 },
+            ...(opts.json ? { responseMimeType: "application/json" } : {}),
           },
         }),
         cache: "no-store",

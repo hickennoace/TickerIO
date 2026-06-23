@@ -11,9 +11,9 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import {
-  useAiSummary,
   useCalendar,
   useCandles,
+  useFundamentals,
   useNews,
   useProfile,
   useQuote,
@@ -24,6 +24,7 @@ import {
 } from "@/lib/hooks";
 import { useBias } from "@/store/useBias";
 import { useWidgetOrder, reconcileOrder, DEFAULT_ORDER } from "@/store/useWidgetOrder";
+import { UI } from "@/lib/i18n/he";
 import { Reveal } from "@/components/ui/Reveal";
 import { SortableWidget } from "./SortableWidget";
 import { PriceHeader } from "@/components/widgets/PriceHeader";
@@ -31,7 +32,7 @@ import { ChartPanel } from "@/components/widgets/ChartPanel";
 import { TimeframePanel } from "@/components/widgets/TimeframePanel";
 import { FearGreedGauge } from "@/components/widgets/FearGreedGauge";
 import { TrendBiasIndicator } from "@/components/widgets/TrendBiasIndicator";
-import { AiSummaryCard } from "@/components/widgets/AiSummaryCard";
+import { FundamentalAnalysis } from "@/components/widgets/FundamentalAnalysis";
 import { AssetProfileCard } from "@/components/widgets/AssetProfile";
 import { NewsFeed } from "@/components/widgets/NewsFeed";
 import { EconomicCalendar } from "@/components/widgets/EconomicCalendar";
@@ -45,7 +46,7 @@ export function DashboardClient({ symbol }: { symbol: string }) {
   const sentQ = useSentiment(symbol);
   const biasQ = useTrendBias(symbol);
   const newsQ = useNews(symbol);
-  const aiQ = useAiSummary(symbol);
+  const fundQ = useFundamentals(symbol);
   const profileQ = useProfile(symbol);
   const calQ = useCalendar();
 
@@ -122,7 +123,7 @@ export function DashboardClient({ symbol }: { symbol: string }) {
             <AssetProfileCard data={profileQ.data} display={quote?.display ?? symbol} loading={profileQ.isLoading} />
           </Reveal>
           <Reveal delay={0.1}>
-            <AiSummaryCard data={aiQ.data} loading={aiQ.isLoading} />
+            <FundamentalAnalysis data={fundQ.data} loading={fundQ.isLoading} />
           </Reveal>
           <Reveal delay={0.15}>
             <NewsFeed
@@ -144,7 +145,7 @@ export function DashboardClient({ symbol }: { symbol: string }) {
                 </SortableWidget>
               ))}
               <p className="text-center text-[11px]" style={{ color: "var(--fg-dim)" }}>
-                Tip: hover a card and drag ⠿ to reorder your dashboard.
+                {UI.dragHint}
               </p>
             </div>
           </SortableContext>
@@ -152,8 +153,7 @@ export function DashboardClient({ symbol }: { symbol: string }) {
       </div>
 
       <p className="mt-8 text-center text-xs" style={{ color: "var(--fg-dim)" }}>
-        Data: Yahoo Finance · CoinDesk · FXStreet · Alternative.me · Forex Factory · TradingView.
-        Aggregated for information only — analysis, not financial advice.
+        {UI.dataFooter}
       </p>
     </main>
   );

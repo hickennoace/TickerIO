@@ -2,6 +2,7 @@
 
 import type { QuoteResponse } from "@/lib/api";
 import { formatPrice } from "@/lib/format";
+import { UI } from "@/lib/i18n/he";
 import { WidgetCard } from "./WidgetCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -14,7 +15,7 @@ function pos(value: number, lo: number, hi: number): number {
 function RangeBar({ lo, hi, value, currency }: { lo: number; hi: number; value: number; currency: string }) {
   const p = pos(value, lo, hi);
   return (
-    <div>
+    <div dir="ltr">
       <div className="relative h-1.5 rounded-full" style={{ background: "var(--panel-2)" }}>
         <div
           className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2"
@@ -42,7 +43,7 @@ function Row({ label, value }: { label: string; value: string }) {
 
 export function KeyStats({ quote, loading }: { quote?: QuoteResponse; loading: boolean }) {
   return (
-    <WidgetCard title="Key Statistics">
+    <WidgetCard title={UI.keyStatistics}>
       {loading || !quote ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -52,21 +53,21 @@ export function KeyStats({ quote, loading }: { quote?: QuoteResponse; loading: b
       ) : (
         <>
           <div className="space-y-1">
-            <Row label="Previous close" value={formatPrice(quote.previousClose, quote.currency)} />
+            <Row label={UI.previousClose} value={formatPrice(quote.previousClose, quote.currency)} />
             {quote.dayLow != null && quote.dayHigh != null && (
               <Row
-                label="Day range"
+                label={UI.dayRange}
                 value={`${formatPrice(quote.dayLow, quote.currency)} – ${formatPrice(quote.dayHigh, quote.currency)}`}
               />
             )}
-            <Row label="Exchange" value={quote.exchange || "—"} />
-            <Row label="Currency" value={quote.currency} />
+            <Row label={UI.exchange} value={quote.exchange || "—"} />
+            <Row label={UI.currency} value={quote.currency} />
           </div>
 
           {quote.fiftyTwoWeekLow != null && quote.fiftyTwoWeekHigh != null && (
             <div className="mt-4">
               <p className="mb-2 text-xs" style={{ color: "var(--fg-muted)" }}>
-                52-week range
+                {UI.week52Range}
               </p>
               <RangeBar
                 lo={quote.fiftyTwoWeekLow}

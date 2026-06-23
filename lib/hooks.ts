@@ -4,11 +4,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import type { QuoteResponse } from "@/lib/api";
 import {
-  fetchAiSummary,
   fetchArticleSummary,
   fetchBatchQuotes,
   fetchCalendar,
   fetchCandles,
+  fetchFundamentals,
   fetchNews,
   fetchProfile,
   fetchQuote,
@@ -140,8 +140,14 @@ export function useNews(symbol: string) {
   });
 }
 
-export function useAiSummary(symbol: string) {
-  return useQuery({ queryKey: ["ai-summary", symbol], queryFn: () => fetchAiSummary(symbol) });
+/** Hebrew fundamental analysis — pillars + composite + news impact. */
+export function useFundamentals(symbol: string) {
+  return useQuery({
+    queryKey: ["fundamentals", symbol],
+    queryFn: () => fetchFundamentals(symbol),
+    staleTime: 600_000,
+    retry: 1,
+  });
 }
 
 export function useProfile(symbol: string) {

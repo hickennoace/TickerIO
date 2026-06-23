@@ -2,16 +2,11 @@
 
 import { motion, useMotionValue, useTransform, animate } from "motion/react";
 import { useEffect } from "react";
+import { UI, fgLabelHe } from "@/lib/i18n/he";
 import { WidgetCard } from "./WidgetCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
-function label(score: number): string {
-  if (score < 25) return "Extreme Fear";
-  if (score < 45) return "Fear";
-  if (score < 55) return "Neutral";
-  if (score < 75) return "Greed";
-  return "Extreme Greed";
-}
+const label = fgLabelHe;
 
 function color(score: number): string {
   if (score < 25) return "#ea3943";
@@ -63,7 +58,7 @@ export function FearGreedGauge({
   }, [score, progress]);
 
   return (
-    <WidgetCard title="Fear & Greed">
+    <WidgetCard title={UI.fearGreed}>
       {loading || score == null ? (
         <div className="flex flex-col items-center gap-3 py-4">
           <Skeleton className="h-[112px] w-[200px] rounded-full" />

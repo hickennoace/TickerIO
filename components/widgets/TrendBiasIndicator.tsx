@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { UI, biasLabelHe } from "@/lib/i18n/he";
 import { WidgetCard } from "./WidgetCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -41,7 +42,6 @@ export function TrendBiasIndicator({
   bias,
   technical,
   sentiment,
-  label,
   loading,
 }: {
   bias?: number;
@@ -51,7 +51,7 @@ export function TrendBiasIndicator({
   loading: boolean;
 }) {
   return (
-    <WidgetCard title="Trend Bias">
+    <WidgetCard title={UI.trendBias}>
       {loading || bias == null ? (
         <div className="space-y-4">
           <Skeleton className="h-8 w-40" />
@@ -62,7 +62,7 @@ export function TrendBiasIndicator({
         <>
           <div className="mb-4 flex items-baseline gap-2">
             <span className="text-2xl font-bold" style={{ color: biasColor(bias) }}>
-              {label}
+              {biasLabelHe(bias)}
             </span>
             <span className="font-mono-num text-sm" style={{ color: "var(--fg-dim)" }}>
               {bias > 0 ? "+" : ""}
@@ -70,11 +70,11 @@ export function TrendBiasIndicator({
             </span>
           </div>
           <div className="space-y-3">
-            <Bar label="Technical momentum" value={technical ?? 0} />
-            <Bar label="Market sentiment" value={sentiment ?? 0} />
+            <Bar label={UI.technicalMomentum} value={technical ?? 0} />
+            <Bar label={UI.marketSentiment} value={sentiment ?? 0} />
           </div>
           <p className="mt-3 text-[11px] leading-relaxed" style={{ color: "var(--fg-dim)" }}>
-            Weighted 60% technical · 40% sentiment.
+            {UI.biasWeighting}
           </p>
         </>
       )}
