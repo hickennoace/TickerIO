@@ -165,6 +165,21 @@ export const UI = {
   couldntSummarize: "לא ניתן לסכם כתבה זו כרגע.",
   noContext: "אין הקשר נוסף זמין לכתבה זו עדיין.",
 
+  // Multi-period trends + DCF + peers
+  trends: "מגמות רב-שנתיות",
+  revenueCagr: "צמיחת הכנסות (CAGR)",
+  earningsCagr: "צמיחת רווח (CAGR)",
+  netMarginByYear: "מרווח נקי לפי שנה",
+  fairValue: "שווי הוגן (DCF)",
+  upsideToFair: "מרחק לשווי ההוגן",
+  impliedGrowth: "צמיחה גלומה במחיר",
+  dcfAssumptions: (rate: number, growth: number) =>
+    `מודל שקוף: היוון ${rate}% · צמיחה ${growth}% · 5 שנים + צמיחה מתמשכת. אינו מחיר יעד.`,
+  peers: "השוואת מתחרים",
+  peersPercentile: "דירוג מול הסקטור",
+  peersEmpty: "אין סט מתחרים זמין לנייר זה.",
+  peerComposite: "ציון כולל",
+
   // Fundamentals specifics
   partialData: "נתונים חלקיים",
   noPillarData: "אין נתונים",
@@ -183,6 +198,14 @@ export const UI = {
   dataFooter:
     "נתונים: Yahoo Finance · CoinDesk · FXStreet · Alternative.me · Forex Factory · TradingView. מאוגד למידע בלבד — ניתוח, לא ייעוץ השקעות.",
 } as const;
+
+/** Net-margin trajectory → Hebrew chip label. */
+export function marginDirectionHe(d?: string | null): { label: string; color: string } | null {
+  if (d === "expanding") return { label: "מרווחים מתרחבים", color: "var(--up)" };
+  if (d === "contracting") return { label: "מרווחים מתכווצים", color: "var(--down)" };
+  if (d === "stable") return { label: "מרווחים יציבים", color: "var(--warn)" };
+  return null;
+}
 
 /** Calendar / news impact level → Hebrew. */
 export function impactHe(impact?: string): string {

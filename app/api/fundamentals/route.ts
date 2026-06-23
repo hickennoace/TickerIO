@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { resolve, quote, dailyCandles, profile } from "@/lib/market";
 import { cached } from "@/lib/cache";
 import { getFundamentals, type Fundamentals } from "@/lib/providers/fundamentals";
+import { getFinancialHistory } from "@/lib/providers/financials-history";
 import { scoreFundamentals, scoreToBand, type Band, type PillarScore } from "@/lib/finance/fundamental-score";
+import { summarizeTrends } from "@/lib/finance/trends";
+import { valuationDcf } from "@/lib/finance/dcf";
 import { getNews } from "@/lib/providers/news";
 import { computeFearGreed } from "@/lib/finance/fear-greed";
 import { technicalScore, computeTrendBias } from "@/lib/finance/trend-bias";
@@ -218,6 +221,7 @@ function buildPrompt(ctx: object): string {
     `- Ratios/multiples (P/E, forward P/E, PEG, EV/EBITDA, P/S, P/B, current/quick ratio, beta) are shown as-is, e.g. "פי 35.96". One decimal place max for any percent you derive.\n` +
     `- No investment advice, no price targets of your own, no "כדאי/מומלץ לקנות/למכור". You MAY state the analyst consensus as a reported fact.\n` +
     `- Be specific to THIS asset's numbers; explain what is actually going on and the forward outlook. No generic filler.\n` +
+    `- If CONTEXT.trends is present, weave in the multi-year trajectory (revenue/earnings CAGR, whether margins are expanding/contracting — marginDirection). If CONTEXT.fairValue is present, mention the DCF fair value and the upside/downside to it (and that it's a transparent model, not a target).\n` +
     `- Reflect each grade's tone (מצוין/טוב = חיובי, סביר = מעורב, חלש/חלש מאוד = זהירות), but stay descriptive, never prescriptive. Weave the relevant "notes" caveats in.\n` +
     `- If pillars is null (crypto/forex/index), set "pillars" to {} and base "overall" only on market data, the technical/Fear&Greed bias, and the news.\n\n` +
     `OUTPUT — return ONLY this JSON object, no markdown, no preamble:\n` +
@@ -273,18 +277,55 @@ function overviewFallback(args: {
 // --------------------------- builder ---------------------------
 async function build(symbolInput: string): Promise<FundamentalsResponse> {
   const r = resolve(symbolInput);
-  const [{ value: q }, { value: candles }, news, f, prof] = await Promise.all([
+  const [{ value: q }, { value: candles }, news, f, prof, history] = await Promise.all([
     quote(symbolInput),
     dailyCandles(symbolInput),
     cached(`news:${r.symbol}`, 600, () => getNews(r.symbol)).then((x) => x.value).catch(() => []),
     getFundamentals(r.symbol, r.assetClass),
     profile(symbolInput).then((x) => x.value).catch(() => null),
+    cached(`finhist:${r.symbol}`, 86_400, () => getFinancialHistory(r.symbol, r.assetClass))
+      .then((x) => x.value)
+      .catch(() => null),
   ]);
 
   const fg = computeFearGreed(candles).score;
   const bias = computeTrendBias(technicalScore(candles), Math.round((fg - 50) * 2)).bias;
   const degraded = !f.available;
   const scores = scoreFundamentals(f, prof?.sector ?? null);
+
+  // Multi-period trends (4y income statement) + a transparent DCF fair value.
+  const trendSummary = !degraded && history ? summarizeTrends(history) : null;
+  const dcf = degraded
+    ? null
+    : valuationDcf({
+        freeCashflow: f.freeCashflow,
+        sharesOutstanding: f.sharesOutstanding,
+        price: f.currentPrice ?? q.price,
+        beta: f.beta,
+        growth: f.revenueGrowth ?? f.earningsGrowth ?? f.nextYearRevenueGrowth,
+      });
+
+  const trends = trendSummary
+    ? {
+        marginPoints: trendSummary.points.map((p) => ({
+          year: p.year,
+          netMarginPct: p.netMargin != null ? Math.round(p.netMargin * 1000) / 10 : null,
+        })),
+        revenueCagrPct: trendSummary.revenueCagr != null ? Math.round(trendSummary.revenueCagr * 1000) / 10 : null,
+        earningsCagrPct: trendSummary.earningsCagr != null ? Math.round(trendSummary.earningsCagr * 1000) / 10 : null,
+        marginDirection: trendSummary.marginDirection,
+      }
+    : null;
+
+  const fairValue = dcf
+    ? {
+        fairValueText: formatPrice(dcf.fairValue, f.currency),
+        upsidePct: dcf.upsidePct != null ? Math.round(dcf.upsidePct * 10) / 10 : null,
+        impliedGrowthPct: dcf.impliedGrowthPct != null ? Math.round(dcf.impliedGrowthPct * 10) / 10 : null,
+        growthPct: Math.round(dcf.assumptions.growthPct * 10) / 10,
+        discountRatePct: Math.round(dcf.assumptions.discountRatePct * 10) / 10,
+      }
+    : null;
 
   const composite = degraded
     ? { score: null as number | null, word: null as string | null }
@@ -299,11 +340,21 @@ async function build(symbolInput: string): Promise<FundamentalsResponse> {
       ageHours: Math.max(0, Math.round((Date.now() - new Date(n.publishedAt).getTime()) / 3_600_000)),
     }));
 
-  const ctx = buildContext({
-    symbol: q.display, name: q.name, assetClass: r.assetClass, currency: f.currency || q.currency,
-    price: q.price, fundamentals: f, scores, fg, bias, dayChangePct: q.changePct, degraded,
-    news: newsForLlm, composite,
-  });
+  const ctx = {
+    ...buildContext({
+      symbol: q.display, name: q.name, assetClass: r.assetClass, currency: f.currency || q.currency,
+      price: q.price, fundamentals: f, scores, fg, bias, dayChangePct: q.changePct, degraded,
+      news: newsForLlm, composite,
+    }),
+    // Multi-year trajectory + fair-value gap so the narrative can speak to
+    // direction and to over/under-valuation (all pre-computed, not invented).
+    trends: trends
+      ? { revenueCagrPct: trends.revenueCagrPct, earningsCagrPct: trends.earningsCagrPct, marginDirection: trends.marginDirection }
+      : null,
+    fairValue: fairValue
+      ? { fairValueText: fairValue.fairValueText, upsidePct: fairValue.upsidePct, impliedGrowthPct: fairValue.impliedGrowthPct }
+      : null,
+  };
 
   // Hebrew is token-dense; give the merged narrative room so it isn't truncated
   // (a cut-off JSON would collapse the whole answer to the heuristic).
@@ -385,6 +436,8 @@ async function build(symbolInput: string): Promise<FundamentalsResponse> {
     overview,
     pillars,
     marketRead,
+    trends,
+    fairValue,
     news: { lean, label: LEAN_HE[lean].label, text: newsText },
     generatedBy,
     asOf: new Date().toISOString(),

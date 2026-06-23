@@ -15,6 +15,7 @@ import {
   useCandles,
   useFundamentals,
   useNews,
+  usePeers,
   useProfile,
   useQuote,
   useSentiment,
@@ -33,6 +34,7 @@ import { TimeframePanel } from "@/components/widgets/TimeframePanel";
 import { FearGreedGauge } from "@/components/widgets/FearGreedGauge";
 import { TrendBiasIndicator } from "@/components/widgets/TrendBiasIndicator";
 import { FundamentalAnalysis } from "@/components/widgets/FundamentalAnalysis";
+import { PeerComparison } from "@/components/widgets/PeerComparison";
 import { AssetProfileCard } from "@/components/widgets/AssetProfile";
 import { NewsFeed } from "@/components/widgets/NewsFeed";
 import { EconomicCalendar } from "@/components/widgets/EconomicCalendar";
@@ -49,6 +51,8 @@ export function DashboardClient({ symbol }: { symbol: string }) {
   const fundQ = useFundamentals(symbol);
   const profileQ = useProfile(symbol);
   const calQ = useCalendar();
+  const isEquity = quoteQ.data?.assetClass === "equity";
+  const peersQ = usePeers(symbol, isEquity);
 
   // Live price ticks via SSE → patches the quote cache in place.
   usePriceStream(symbol);
@@ -125,6 +129,11 @@ export function DashboardClient({ symbol }: { symbol: string }) {
           <Reveal delay={0.1}>
             <FundamentalAnalysis data={fundQ.data} loading={fundQ.isLoading} />
           </Reveal>
+          {isEquity && (
+            <Reveal delay={0.12}>
+              <PeerComparison data={peersQ.data} loading={peersQ.isLoading} />
+            </Reveal>
+          )}
           <Reveal delay={0.15}>
             <NewsFeed
               symbol={symbol}

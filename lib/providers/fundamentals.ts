@@ -61,6 +61,7 @@ export interface Fundamentals {
   enterpriseToRevenue: number | null;
   marketCap: number | null;
   enterpriseValue: number | null;
+  sharesOutstanding: number | null;
   dividendYield: number | null;
   payoutRatio: number | null;
   beta: number | null;
@@ -101,7 +102,7 @@ function empty(assetClass: AssetClass, currency = "USD"): Fundamentals {
     returnOnEquity: null, returnOnAssets: null, ebitda: null, netIncome: null,
     trailingPE: null, forwardPE: null, pegRatio: null, priceToBook: null,
     priceToSales: null, enterpriseToEbitda: null, enterpriseToRevenue: null,
-    marketCap: null, enterpriseValue: null, dividendYield: null, payoutRatio: null, beta: null,
+    marketCap: null, enterpriseValue: null, sharesOutstanding: null, dividendYield: null, payoutRatio: null, beta: null,
     freeCashflow: null, operatingCashflow: null, totalRevenue: null,
     totalCash: null, totalDebt: null, debtToEquity: null, currentRatio: null, quickRatio: null,
     revenueGrowth: null, earningsGrowth: null, trailingEps: null, forwardEps: null,
@@ -171,6 +172,7 @@ export async function getFundamentals(
     enterpriseToRevenue: num(ks.enterpriseToRevenue),
     marketCap: num(sd.marketCap) ?? num(pr.marketCap),
     enterpriseValue: num(ks.enterpriseValue),
+    sharesOutstanding: num(ks.sharesOutstanding),
     dividendYield: normYield(sd.dividendYield),
     payoutRatio: num(sd.payoutRatio),
     beta: num(sd.beta) ?? num(ks.beta),

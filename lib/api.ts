@@ -113,6 +113,21 @@ export interface FundPillar {
   notes: string[];
 }
 
+export interface FundTrends {
+  marginPoints: { year: number; netMarginPct: number | null }[];
+  revenueCagrPct: number | null;
+  earningsCagrPct: number | null;
+  marginDirection: "expanding" | "stable" | "contracting" | null;
+}
+
+export interface FundFairValue {
+  fairValueText: string;
+  upsidePct: number | null;
+  impliedGrowthPct: number | null;
+  growthPct: number;
+  discountRatePct: number;
+}
+
 export interface FundamentalsResponse {
   symbol: string;
   display: string;
@@ -124,6 +139,8 @@ export interface FundamentalsResponse {
   overview: string;
   pillars: FundPillar[];
   marketRead: FundMetric[];
+  trends: FundTrends | null;
+  fairValue: FundFairValue | null;
   news: { lean: "Bullish" | "Bearish" | "Neutral"; label: string; text: string };
   generatedBy: string;
   asOf: string;
@@ -131,6 +148,28 @@ export interface FundamentalsResponse {
 
 export const fetchFundamentals = (symbol: string) =>
   get<FundamentalsResponse>(`/api/fundamentals?symbol=${encodeURIComponent(symbol)}`);
+
+// ---- Peer / sector comparison ----
+export interface PeerRow {
+  symbol: string;
+  display: string;
+  composite: number | null;
+  pePct: string | null; // formatted P/E
+  netMarginPct: number | null;
+  revenueGrowthPct: number | null;
+  isTarget: boolean;
+}
+
+export interface PeersResponse {
+  symbol: string;
+  sector: string | null;
+  /** The target's percentile (0-100) among peers on the composite score. */
+  compositePercentile: number | null;
+  rows: PeerRow[];
+}
+
+export const fetchPeers = (symbol: string) =>
+  get<PeersResponse>(`/api/peers?symbol=${encodeURIComponent(symbol)}`);
 
 export const fetchCalendar = () =>
   get<{ events: CalendarEvent[]; source: string; asOf: string }>(`/api/calendar`);

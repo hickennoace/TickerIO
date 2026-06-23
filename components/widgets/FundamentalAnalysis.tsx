@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "motion/react";
-import { TrendingUp, Coins, Wallet, ShieldCheck, Newspaper } from "lucide-react";
-import type { FundamentalsResponse, FundPillar, FundMetric, FundBand } from "@/lib/api";
-import { UI } from "@/lib/i18n/he";
+import { TrendingUp, Coins, Wallet, ShieldCheck, Newspaper, LineChart, Scale } from "lucide-react";
+import type { FundamentalsResponse, FundPillar, FundMetric, FundBand, FundTrends, FundFairValue } from "@/lib/api";
+import { UI, marginDirectionHe } from "@/lib/i18n/he";
 import { WidgetCard } from "./WidgetCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -93,6 +93,96 @@ function PillarBlock({ p }: { p: FundPillar }) {
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+function CagrBadge({ label, pct }: { label: string; pct: number | null }) {
+  if (pct == null) return null;
+  const color = pct >= 0 ? "var(--up)" : "var(--down)";
+  return (
+    <div className="flex flex-col">
+      <span className="text-[11px]" style={{ color: "var(--fg-dim)" }}>{label}</span>
+      <span className="font-mono-num ltr-num text-sm font-semibold" style={{ color }}>
+        {pct > 0 ? "+" : ""}{pct}%
+      </span>
+    </div>
+  );
+}
+
+function TrendsSection({ trends }: { trends: FundTrends }) {
+  const pts = trends.marginPoints.filter((p) => p.netMarginPct != null);
+  const maxM = Math.max(1, ...pts.map((p) => Math.abs(p.netMarginPct as number)));
+  const dir = marginDirectionHe(trends.marginDirection);
+  return (
+    <div className="mt-4 rounded-[var(--radius-sm)] border border-[var(--border)] p-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h4 className="flex items-center gap-2 text-sm font-semibold text-[var(--fg)]">
+          <LineChart size={15} style={{ color: "var(--fg-muted)" }} /> {UI.trends}
+        </h4>
+        {dir && (
+          <span className="rounded-md px-2 py-0.5 text-xs font-semibold" style={{ color: dir.color, background: "var(--panel-2)" }}>
+            {dir.label}
+          </span>
+        )}
+      </div>
+      <div className="flex gap-6">
+        <CagrBadge label={UI.revenueCagr} pct={trends.revenueCagrPct} />
+        <CagrBadge label={UI.earningsCagr} pct={trends.earningsCagrPct} />
+      </div>
+      {pts.length > 0 && (
+        <>
+          <p className="mb-1.5 mt-3 text-[11px]" style={{ color: "var(--fg-dim)" }}>{UI.netMarginByYear}</p>
+          <div dir="ltr" className="flex items-end gap-2" style={{ height: 60 }}>
+            {pts.map((p) => {
+              const h = Math.max(4, (Math.abs(p.netMarginPct as number) / maxM) * 52);
+              const neg = (p.netMarginPct as number) < 0;
+              return (
+                <div key={p.year} className="flex flex-1 flex-col items-center justify-end gap-1">
+                  <span className="font-mono-num text-[10px]" style={{ color: "var(--fg-muted)" }}>{p.netMarginPct}%</span>
+                  <div className="w-full rounded-t" style={{ height: h, background: neg ? "var(--down)" : "var(--up)", opacity: 0.85 }} />
+                  <span className="font-mono-num text-[10px]" style={{ color: "var(--fg-dim)" }}>{p.year}</span>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function FairValueSection({ fv }: { fv: FundFairValue }) {
+  const up = fv.upsidePct != null && fv.upsidePct >= 0;
+  const upColor = fv.upsidePct == null ? "var(--fg-muted)" : up ? "var(--up)" : "var(--down)";
+  return (
+    <div className="mt-4 rounded-[var(--radius-sm)] border border-[var(--border)] p-4">
+      <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--fg)]">
+        <Scale size={15} style={{ color: "var(--fg-muted)" }} /> {UI.fairValue}
+      </h4>
+      <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
+        <div className="flex flex-col">
+          <span className="text-[11px]" style={{ color: "var(--fg-dim)" }}>{UI.fairValue}</span>
+          <span className="font-mono-num ltr-num text-xl font-bold" style={{ color: upColor }}>{fv.fairValueText}</span>
+        </div>
+        {fv.upsidePct != null && (
+          <div className="flex flex-col">
+            <span className="text-[11px]" style={{ color: "var(--fg-dim)" }}>{UI.upsideToFair}</span>
+            <span className="font-mono-num ltr-num text-sm font-semibold" style={{ color: upColor }}>
+              {fv.upsidePct > 0 ? "+" : ""}{fv.upsidePct}%
+            </span>
+          </div>
+        )}
+        {fv.impliedGrowthPct != null && (
+          <div className="flex flex-col">
+            <span className="text-[11px]" style={{ color: "var(--fg-dim)" }}>{UI.impliedGrowth}</span>
+            <span className="font-mono-num ltr-num text-sm" style={{ color: "var(--fg)" }}>{fv.impliedGrowthPct}%</span>
+          </div>
+        )}
+      </div>
+      <p className="mt-3 text-[11px] leading-relaxed" style={{ color: "var(--fg-dim)" }}>
+        {UI.dcfAssumptions(fv.discountRatePct, fv.growthPct)}
+      </p>
     </div>
   );
 }
@@ -198,6 +288,10 @@ export function FundamentalAnalysis({ data, loading }: { data?: FundamentalsResp
       <div className="grid gap-4 xl:grid-cols-2">
         {data.pillars.map((p) => <PillarBlock key={p.key} p={p} />)}
       </div>
+
+      {/* Multi-period trends + DCF fair value */}
+      {data.trends && <TrendsSection trends={data.trends} />}
+      {data.fairValue && <FairValueSection fv={data.fairValue} />}
 
       {/* Section 5 — news fundamental analysis */}
       <NewsImpact news={data.news} />

@@ -9,6 +9,7 @@ import {
   fetchCalendar,
   fetchCandles,
   fetchFundamentals,
+  fetchPeers,
   fetchNews,
   fetchProfile,
   fetchQuote,
@@ -146,6 +147,17 @@ export function useFundamentals(symbol: string) {
     queryKey: ["fundamentals", symbol],
     queryFn: () => fetchFundamentals(symbol),
     staleTime: 600_000,
+    retry: 1,
+  });
+}
+
+/** Peer / sector comparison — lazy (heavier fan-out), equities only. */
+export function usePeers(symbol: string, enabled = true) {
+  return useQuery({
+    queryKey: ["peers", symbol],
+    queryFn: () => fetchPeers(symbol),
+    enabled,
+    staleTime: 3_600_000,
     retry: 1,
   });
 }
