@@ -19,14 +19,21 @@ export function technicalScore(candles: Candle[]): number {
   if (closes.length < 20) return 0;
   const price = closes[closes.length - 1];
   const ma20 = sma(closes, 20) ?? price;
-  const ma50 = sma(closes, Math.min(closes.length, 50)) ?? price;
-  const ma200 = sma(closes, Math.min(closes.length, 200)) ?? price;
+  // Only apply MA terms backed by real history — never compare against a
+  // full-length average masquerading as a 50/200-day MA (that charged a phantom
+  // death-cross on short series).
+  const ma50 = closes.length >= 50 ? sma(closes, 50) : null;
+  const ma200 = closes.length >= 200 ? sma(closes, 200) : null;
 
   let score = 0;
   score += price > ma20 ? 20 : -20;
-  score += price > ma50 ? 20 : -20;
-  score += ma20 > ma50 ? 15 : -15; // short above mid = uptrend
-  score += ma50 > ma200 ? 15 : -15; // golden/death cross bias
+  if (ma50 != null) {
+    score += price > ma50 ? 20 : -20;
+    score += ma20 > ma50 ? 15 : -15; // short above mid = uptrend
+  }
+  if (ma50 != null && ma200 != null) {
+    score += ma50 > ma200 ? 15 : -15; // golden/death cross bias
+  }
 
   // 20-day rate of change (guarded: a zero/invalid base must not blow the score to ±30).
   const past = closes[closes.length - 21] ?? closes[0];

@@ -65,7 +65,7 @@ export function TickerSearch({
       >
         <Search
           size={big ? 22 : 18}
-          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2"
+          className="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2"
           style={{ color: "var(--fg-dim)" }}
         />
         <input
@@ -85,7 +85,7 @@ export function TickerSearch({
           spellCheck={false}
           autoComplete="off"
           className={`w-full rounded-2xl border bg-[var(--panel)] font-medium text-[var(--fg)] outline-none transition-colors placeholder:text-[var(--fg-dim)] focus:border-[var(--accent)] ${
-            big ? "py-4 pl-12 pr-28 text-lg" : "py-2.5 pl-11 pr-20 text-sm"
+            big ? "py-4 ps-12 pe-28 text-lg" : "py-2.5 ps-11 pe-20 text-sm"
           }`}
         />
         <motion.button
@@ -98,7 +98,7 @@ export function TickerSearch({
           // `-translate-y-1/2` here — in Tailwind v4 that sets the CSS `translate`
           // property, which composes with motion's `transform` and doubles to
           // -100% (the button pops out the top of the bar).
-          className={`absolute right-2 top-1/2 rounded-xl bg-[var(--accent)] font-semibold text-white transition-opacity hover:opacity-90 ${
+          className={`absolute end-2 top-1/2 rounded-xl bg-[var(--accent)] font-semibold text-white transition-opacity hover:opacity-90 ${
             big ? "px-5 py-2.5 text-sm" : "px-3 py-1.5 text-xs"
           }`}
           style={{ y: "-50%" }}
@@ -124,7 +124,7 @@ export function TickerSearch({
                 <button
                   onMouseEnter={() => setActive(i)}
                   onClick={() => go(hit.symbol)}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors"
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-start transition-colors"
                   style={{ background: i === active ? "var(--panel-2)" : "transparent" }}
                 >
                   <TrendingUp size={15} style={{ color: "var(--accent)" }} />

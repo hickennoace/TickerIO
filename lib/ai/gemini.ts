@@ -27,6 +27,7 @@ export async function geminiText(
           },
         }),
         cache: "no-store",
+        signal: AbortSignal.timeout(9000),
       },
     );
     if (!res.ok) return null;

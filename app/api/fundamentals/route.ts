@@ -15,6 +15,8 @@ import {
 import type { FundMetric, FundPillar, FundamentalsResponse } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
+// Bounded headroom for the parallel upstream fetches + the (timed-out) LLM call.
+export const maxDuration = 30;
 
 // --------------------------- formatters ---------------------------
 const fmtPct = (x: number, d = 1) => `${(x * 100).toFixed(d)}%`;
@@ -48,8 +50,10 @@ function pillarBand(score: number | null): { band: Band | null; word: string | n
   return { band, word: BAND_HE[band].word };
 }
 
-/** Weighted blend of two pillar scores (strength + growth → section 4). */
-function blend(a: number | null, b: number | null, wa = 0.55, wb = 0.45): number | null {
+/** Weighted blend of two pillar scores (strength + growth → section 4).
+ *  Defaults mirror the composite's relative weights (0.20 / 0.18) so the visible
+ *  section-4 grade and the composite share one weighting scheme. */
+function blend(a: number | null, b: number | null, wa = 0.2, wb = 0.18): number | null {
   if (a == null && b == null) return null;
   if (a == null) return b;
   if (b == null) return a;

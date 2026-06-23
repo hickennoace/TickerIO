@@ -1,9 +1,9 @@
-"use client";
-
 import { ReactNode } from "react";
-import { motion, useReducedMotion } from "motion/react";
-import { SPRING } from "@/lib/motion";
 
+/** Card shell. Hover lift + glow are owned entirely by the CSS `.panel-hover`
+ *  rule (we previously also animated y:-3 in motion, so the two fought over
+ *  `transform`). Title uses normal-case tracking — `uppercase` is a no-op for
+ *  Hebrew and wide tracking breaks connected Hebrew glyphs. */
 export function WidgetCard({
   title,
   action,
@@ -15,22 +15,17 @@ export function WidgetCard({
   children: ReactNode;
   className?: string;
 }) {
-  const reduce = useReducedMotion();
   return (
-    <motion.section
-      whileHover={reduce ? undefined : { y: -3 }}
-      transition={SPRING.soft}
-      className={`panel panel-hover p-5 ${className}`}
-    >
+    <section className={`panel panel-hover p-5 ${className}`}>
       {title && (
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--fg-muted)]">
+          <h3 className="text-xs font-semibold tracking-wide text-[var(--fg-muted)]">
             {title}
           </h3>
           {action}
         </div>
       )}
       {children}
-    </motion.section>
+    </section>
   );
 }

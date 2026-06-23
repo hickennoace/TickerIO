@@ -18,10 +18,12 @@ const rowVariants = {
   show: { opacity: 1, x: 0, transition: { duration: DURATION.base, ease: EASE } },
 };
 
-function MoverRow({ q, rank, reduce }: { q: MiniQuote; rank: number; reduce: boolean }) {
+function MoverRow({ q, rank, reduce, maxAbs }: { q: MiniQuote; rank: number; reduce: boolean; maxAbs: number }) {
   const dir = direction(q.changePct);
   const color = dir === "up" ? "var(--up)" : dir === "down" ? "var(--down)" : "var(--fg-muted)";
-  const width = Math.min(Math.abs(q.changePct) / 10, 1) * 100;
+  // Rebase the magnitude bar to the largest move on screen so a crypto +60% and
+  // an equity +2% aren't both pinned to the same width.
+  const width = (Math.abs(q.changePct) / maxAbs) * 100;
 
   return (
     <motion.div variants={rowVariants}>
@@ -65,6 +67,7 @@ function Column({
   quotes: MiniQuote[];
   reduce: boolean;
 }) {
+  const maxAbs = Math.max(0.5, ...quotes.map((q) => Math.abs(q.changePct)));
   return (
     <div className="panel p-4">
       <div className="mb-3 flex items-center gap-2">
@@ -83,7 +86,7 @@ function Column({
           animate="show"
         >
           {quotes.map((q, i) => (
-            <MoverRow key={q.symbol} q={q} rank={i + 1} reduce={reduce} />
+            <MoverRow key={q.symbol} q={q} rank={i + 1} reduce={reduce} maxAbs={maxAbs} />
           ))}
         </motion.div>
       )}

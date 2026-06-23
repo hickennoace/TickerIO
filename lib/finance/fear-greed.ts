@@ -2,10 +2,12 @@
  * Fear & Greed composite (CLAUDE.md §5.1).
  *
  * A 0..100 score from price action: momentum (vs moving averages), strength
- * (RSI-style up/down balance), and volatility (high vol → fear). For crypto we
- * blend in Alternative.me's industry-standard index when available.
+ * (RSI-style up/down balance), and volatility (high vol → fear). For crypto the
+ * /api/sentiment route blends this with Alternative.me's industry index.
  *
- * Pure. Returns sub-scores so the UI can explain the number.
+ * Pure (price-action only). Returns sub-scores so the UI can explain the number.
+ * Degrades cleanly on short histories: MA terms that lack enough candles are
+ * dropped (never substituted with a shorter window) so momentum isn't biased.
  */
 
 import type { Candle } from "@/lib/types";
@@ -58,20 +60,35 @@ export function computeFearGreed(candles: Candle[]): FearGreedBreakdown {
   }
 
   const price = closes[closes.length - 1];
-  const ma50 = sma(closes, 50) ?? sma(closes, Math.min(closes.length, 50)) ?? price;
-  const ma200 = sma(closes, 200) ?? sma(closes, Math.min(closes.length, 100)) ?? price;
+  // Only use an MA when there's genuinely enough history — never substitute a
+  // shorter window (that silently biases the "distance from average" momentum).
+  const ma50 = closes.length >= 50 ? sma(closes, 50) : null;
+  const ma200 = closes.length >= 200 ? sma(closes, 200) : null;
 
-  // Momentum: how far above/below the averages (greedy when above).
-  const aboveShort = (price / ma50 - 1) * 100;
-  const aboveLong = (price / ma200 - 1) * 100;
-  const momentum = clamp(50 + (aboveShort * 4 + aboveLong * 2));
+  // Momentum: how far above/below the averages (greedy when above). Weight the
+  // long term only when it exists; renormalize so a short history isn't penalized.
+  const shortTerm = ma50 != null ? (price / ma50 - 1) * 100 : null;
+  const longTerm = ma200 != null ? (price / ma200 - 1) * 100 : null;
+  let momentum: number;
+  if (shortTerm != null && longTerm != null) {
+    momentum = clamp(50 + (shortTerm * 4 + longTerm * 2));
+  } else if (shortTerm != null) {
+    momentum = clamp(50 + shortTerm * 6); // all weight on the short MA
+  } else {
+    momentum = 50; // not enough history to read momentum
+  }
 
   // Strength: RSI directly maps to fear/greed.
   const strength = clamp(rsi(closes, 14));
 
-  // Volatility: recent vs baseline. Elevated vol → fear (low score).
+  // Volatility: recent (14d) vs a DISJOINT prior baseline (the window ending 14
+  // days ago), so a fresh spike doesn't also inflate its own baseline.
   const recentVol = realizedVol(closes, 14);
-  const baseVol = realizedVol(closes, Math.min(closes.length - 1, 90)) || recentVol || 1e-9;
+  const prior = closes.slice(0, -14);
+  const baseVol =
+    (prior.length > 14 ? realizedVol(prior, Math.min(prior.length - 1, 90)) : 0) ||
+    recentVol ||
+    1e-9;
   const volRatio = recentVol / baseVol; // >1 means elevated
   const volatility = clamp(50 - (volRatio - 1) * 50);
 

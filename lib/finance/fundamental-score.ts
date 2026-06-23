@@ -65,20 +65,23 @@ interface Sub {
   weight: number;
 }
 
-/** Combine weighted sub-metrics, renormalizing over the ones that are present. */
-function combine(subs: Sub[]): { score: number | null; coverage: number } {
+/**
+ * Combine weighted sub-metrics, renormalizing over the ones that are present.
+ * `floor` is the minimum coverage required to emit a score (default 0.5).
+ */
+function combine(subs: Sub[], floor = 0.5): { score: number | null; coverage: number } {
   const present = subs.filter((s) => s.score !== null);
   const totalW = subs.reduce((a, s) => a + s.weight, 0);
   const presentW = present.reduce((a, s) => a + s.weight, 0);
   const coverage = totalW ? presentW / totalW : 0;
-  if (coverage < 0.5) return { score: null, coverage };
+  if (coverage < floor) return { score: null, coverage };
   const score =
     present.reduce((a, s) => a + (s.score as number) * s.weight, 0) / presentW;
   return { score: Math.round(score), coverage };
 }
 
-function pillar(subs: Sub[], notes: string[]): PillarScore {
-  const { score, coverage } = combine(subs);
+function pillar(subs: Sub[], notes: string[], floor = 0.5): PillarScore {
+  const { score, coverage } = combine(subs, floor);
   return { score, band: score == null ? null : scoreToBand(score), coverage, notes };
 }
 
@@ -142,6 +145,15 @@ function scoreValuation(f: Fundamentals): PillarScore {
     ? curve(f.priceToBook, [[0.8, 100], [1.5, 82], [3, 64], [6, 46], [10, 26], [20, 8]])
     : null;
 
+  // "Priced for perfection" — flag rich sales/book multiples even when earnings
+  // multiples are absent (loss-makers), so an expensive growth name can't look cheap.
+  if ((has(f.priceToSales) && f.priceToSales > 10) || (has(f.priceToBook) && f.priceToBook > 15)) {
+    notes.push("מתומחר לשלמות — מכפילי מכירות/הון גבוהים מאוד.");
+  }
+
+  // Valuation is too important to silently drop from the composite. Emit a score
+  // whenever even one universal multiple (P/S, P/B) is present (floor 0.2), so a
+  // loss-making name without a P/E still carries a valuation read.
   return pillar(
     [
       { score: trailingPE, weight: 0.22 },
@@ -152,6 +164,7 @@ function scoreValuation(f: Fundamentals): PillarScore {
       { score: pb, weight: 0.1 },
     ],
     notes,
+    0.2,
   );
 }
 

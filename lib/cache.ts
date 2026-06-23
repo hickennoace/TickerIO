@@ -84,9 +84,13 @@ export async function fetchWith(url: string, init?: RequestInit): Promise<Respon
     },
     // Provider responses are cached by our own TTL layer.
     cache: "no-store",
+    // Never hang a serverless function on a slow upstream; callers may override.
+    signal: init?.signal ?? AbortSignal.timeout(8000),
   });
   if (!res.ok) {
-    throw new Error(`Upstream ${res.status} for ${url}`);
+    // Don't leak the upstream URL (carries the Yahoo crumb / an attacker's
+    // article URL) to clients — log-safe status only.
+    throw new Error(`Upstream ${res.status}`);
   }
   return res;
 }

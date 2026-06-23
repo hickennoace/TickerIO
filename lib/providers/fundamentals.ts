@@ -27,6 +27,15 @@ function str(v: unknown): string | null {
   return null;
 }
 
+/** Yahoo's summaryDetail.dividendYield is sometimes a fraction (0.0052) and
+ *  sometimes already a percent (e.g. 2.1). A "fraction" > 1 would be a >100%
+ *  yield (impossible), so treat anything > 1 as a percent and rescale. */
+function normYield(v: unknown): number | null {
+  const n = num(v);
+  if (n == null) return null;
+  return n > 1 ? n / 100 : n;
+}
+
 /** Flat, normalized fundamental figures. All optional — many stocks lack some. */
 export interface Fundamentals {
   available: boolean;
@@ -162,7 +171,7 @@ export async function getFundamentals(
     enterpriseToRevenue: num(ks.enterpriseToRevenue),
     marketCap: num(sd.marketCap) ?? num(pr.marketCap),
     enterpriseValue: num(ks.enterpriseValue),
-    dividendYield: num(sd.dividendYield),
+    dividendYield: normYield(sd.dividendYield),
     payoutRatio: num(sd.payoutRatio),
     beta: num(sd.beta) ?? num(ks.beta),
 

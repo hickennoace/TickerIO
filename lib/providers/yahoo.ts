@@ -28,7 +28,7 @@ async function fetchChart(
 ): Promise<ChartFetch> {
   const path = `/v8/finance/chart/${encodeURIComponent(
     symbol,
-  )}?range=${range}&interval=${interval}&includePrePost=false`;
+  )}?range=${encodeURIComponent(range)}&interval=${encodeURIComponent(interval)}&includePrePost=false`;
 
   let lastErr: unknown;
   for (const host of HOSTS) {

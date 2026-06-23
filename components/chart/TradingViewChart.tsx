@@ -67,17 +67,18 @@ export function TradingViewChart({
     loadScript()
       .then(() => {
         if (cancelled || !window.TradingView || !ref.current) return;
+        const light = document.documentElement.dataset.theme === "light";
         ref.current.innerHTML = "";
         new window.TradingView.widget({
           container_id: containerId,
           symbol: tvSymbol(symbol, display, assetClass),
           interval,
           autosize: true,
-          theme: "dark",
+          theme: light ? "light" : "dark",
           style: "1",
-          locale: "en",
+          locale: "he",
           timezone: "Etc/UTC",
-          toolbar_bg: "#0e131f",
+          toolbar_bg: light ? "#ffffff" : "#0e131f",
           enable_publishing: false,
           allow_symbol_change: true,
           hide_side_toolbar: false,
@@ -92,7 +93,7 @@ export function TradingViewChart({
       .catch(() => {
         if (ref.current) {
           ref.current.innerHTML =
-            '<div style="display:grid;place-items:center;height:100%;color:#586079;font-size:13px">Chart unavailable — TradingView could not load.</div>';
+            '<div dir="rtl" style="display:grid;place-items:center;height:100%;color:#586079;font-size:13px">הגרף אינו זמין כרגע — TradingView לא נטען.</div>';
         }
       });
     return () => {

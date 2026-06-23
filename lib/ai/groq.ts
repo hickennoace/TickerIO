@@ -19,6 +19,7 @@ export async function groqText(
         ...(opts.json ? { response_format: { type: "json_object" } } : {}),
       }),
       cache: "no-store",
+      signal: AbortSignal.timeout(9000),
     });
     if (!res.ok) return null;
     const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };

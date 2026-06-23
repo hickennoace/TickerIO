@@ -31,6 +31,17 @@ function tag(block: string, name: string): string {
   return m ? decode(m[1]) : "";
 }
 
+/** Stable content hash so item ids are unique across symbols/sources — positional
+ *  ids like "cnbc-2" collide and make React Query serve the wrong article summary. */
+function hashId(s: string): string {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(36);
+}
+
 /** Parse a standard RSS 2.0 feed into NewsItems. */
 function parseRss(xml: string, source: string, idPrefix: string, limit: number): NewsItem[] {
   const items: NewsItem[] = [];
@@ -44,7 +55,7 @@ function parseRss(xml: string, source: string, idPrefix: string, limit: number):
     const srcTag = block.match(/<source[^>]*>([\s\S]*?)<\/source>/i);
     const description = tag(block, "description");
     items.push({
-      id: `${idPrefix}-${i}`,
+      id: `${idPrefix}-${hashId(link || headline)}`,
       headline,
       url: link,
       description: description || undefined,

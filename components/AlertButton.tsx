@@ -72,7 +72,7 @@ export function AlertButton({
 
       {open && (
         <div
-          className="panel absolute right-0 z-50 mt-2 w-64 p-3"
+          className="panel absolute end-0 z-50 mt-2 w-64 p-3"
           style={{ boxShadow: "0 24px 48px -20px rgba(0,0,0,0.9)" }}
         >
           <div className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--fg-muted)" }}>
